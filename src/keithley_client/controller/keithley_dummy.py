@@ -51,8 +51,8 @@ class KeithleyDummy:
         if self.output_state[smu]:
             if smu == "a":  # Simulate n-type MOSFET current readings
                 # Simulate p-type MOSFET current readings
-                Vgs = self.voltage["a"]
-                Vds = self.voltage["b"]
+                Vgs = self.voltage["b"]
+                Vds = self.voltage["a"]
                 Vth = 0  # Threshold voltage for p-type
                 W_L = 635  # Width-to-length ratio
                 Cox = 15e-9  # Oxide capacitance per unit area (F/cm^2)

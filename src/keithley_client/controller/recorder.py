@@ -5,16 +5,18 @@ from PyQt5.QtCore import QThread, pyqtSignal
 
 from collections import deque
 
-# from .keithley import Keithley
-from .keithley_dummy import KeithleyDummy as Keithley
+from .keithley import Keithley
+from .keithley_dummy import KeithleyDummy
 
 
 class Recorder(QThread):
     data_ready = pyqtSignal()
 
-    def __init__(self, keithley_address):
+    def __init__(self, keithley_address, dummy=False):
         super().__init__()
-        self.keithley = Keithley(keithley_address)
+        self.keithley = (
+            KeithleyDummy(keithley_address) if dummy else Keithley(keithley_address)
+        )
         self.keithley.set_source_function("b", "OUTPUT_DCVOLTS")
         self.keithley.set_source_function("a", "OUTPUT_DCVOLTS")
         self.points = []

@@ -20,18 +20,39 @@ from ..controller.recorder import Recorder
 from ..config import CONFIGS, KEITHLEY_ADDRESS
 
 
+def float_to_eng_string(f):
+    """
+    Convert a float to an engineering string
+    """
+    up = ["", "k", "M", "G", "T", "P", "E", "Z", "Y"]
+    down = ["m", "u", "n", "p", "f", "a", "z", "y"]
+
+    if f == 0:
+        return "0"
+
+    degree = int(np.floor(np.log10(abs(f)) / 3))
+    if degree > 0:
+        value = f / 10 ** (3 * degree)
+        unit = up[degree]
+    else:
+        value = f * 10 ** (-3 * degree)
+        unit = down[-degree - 1]
+
+    return f"{value:.2f} {unit}"
+
+
 class MainWindow(QMainWindow):
     """
     Main window
     """
 
-    def __init__(self, win_title, mode):
+    def __init__(self, win_title, mode, dummy=False):
         super().__init__()
 
         self.win_title = win_title
         self.mode = mode
         self.cfg = CONFIGS[mode]
-        self.recorder = Recorder(KEITHLEY_ADDRESS)
+        self.recorder = Recorder(KEITHLEY_ADDRESS, dummy=dummy)
         self.recorder.data_ready.connect(self.update_plots)
 
         self.init_ui()
@@ -261,7 +282,7 @@ class MainWindow(QMainWindow):
         self.vd_label = QLabel("Vd: 0.0 V")
         self.vg_label = QLabel("Vg: 0.0 V")
         self.time_label = QLabel("Time: 0.0 s")
-        self.info_label = QLabel("")
+        self.info_label = QLabel("Information")
 
         self.info_layout.addWidget(self.id_label, 0, 0)
         self.info_layout.addWidget(self.ig_label, 0, 1)
@@ -494,48 +515,31 @@ class MainWindow(QMainWindow):
         """
         Start the measurement
         """
-        self.info_label.setText("Measurement started")
-
         self.points = []
-        if self.Vg_mode_combo.currentText() == "Fixed":
-            if self.Vd_mode_combo.currentText() == "Fixed":
-                self.points.append([self.Vg_spin.value(), self.Vd_spin.value()])
+        modes = [self.Vg_mode_combo.currentText(), self.Vd_mode_combo.currentText()]
+        bi = [
+            self.Vg_bidirectional_checkbox.isChecked(),
+            self.Vd_bidirectional_checkbox.isChecked(),
+        ]
+        values = [self.Vg_spin.value(), self.Vd_spin.value()]
+        ranges = [
+            [self.Vg_start_spin.value(), self.Vg_stop_spin.value()],
+            [self.Vd_start_spin.value(), self.Vd_stop_spin.value()],
+        ]
+        steps = [self.Vg_step_spin.value(), self.Vd_step_spin.value()]
+        temp = []
+
+        for i, mode in enumerate(modes):
+            if mode == "Sweep":
+                temp.append(np.linspace(ranges[i][0], ranges[i][1], steps[i]))
+                if bi[i]:
+                    temp[-1] = np.concatenate([temp[-1], temp[-1][::-1]])
             else:
-                for vd in np.linspace(
-                    self.Vd_start_spin.value(),
-                    self.Vd_stop_spin.value(),
-                    self.Vd_step_spin.value(),
-                ):
-                    self.points.append([self.Vg_spin.value(), vd])
-                if self.Vd_bidirectional_checkbox.isChecked():
-                    for vd in np.linspace(
-                        self.Vd_stop_spin.value(),
-                        self.Vd_start_spin.value(),
-                        self.Vd_step_spin.value(),
-                    ):
-                        self.points.append([self.Vg_spin.value(), vd])
-        else:
-            for vg in np.linspace(
-                self.Vg_start_spin.value(),
-                self.Vg_stop_spin.value(),
-                self.Vg_step_spin.value(),
-            ):
-                if self.Vd_mode_combo.currentText() == "Fixed":
-                    self.points.append([vg, self.Vd_spin.value()])
-                else:
-                    for vd in np.linspace(
-                        self.Vd_start_spin.value(),
-                        self.Vd_stop_spin.value(),
-                        self.Vd_step_spin.value(),
-                    ):
-                        self.points.append([vg, vd])
-                    if self.Vd_bidirectional_checkbox.isChecked():
-                        for vd in np.linspace(
-                            self.Vd_stop_spin.value(),
-                            self.Vd_start_spin.value(),
-                            self.Vd_step_spin.value(),
-                        ):
-                            self.points.append([vg, vd])
+                temp.append([values[i]])
+
+        for vg in temp[0]:
+            for vd in temp[1]:
+                self.points.append([vg, vd])
 
         self.recorder.start(self.points, self.delay_spin.value())
 
@@ -543,19 +547,17 @@ class MainWindow(QMainWindow):
         """
         Stop the measurement
         """
-        self.info_label.setText("Measurement stopped")
         self.recorder.stop()
 
     def update_plots(self):
         """
         Update the plot
         """
-        self.id_label.setText(f"Id: {self.recorder.id[-1]} A")
-        self.ig_label.setText(f"Ig: {self.recorder.ig[-1]} A")
-        self.vd_label.setText(f"Vd: {self.recorder.vd[-1]} V")
-        self.vg_label.setText(f"Vg: {self.recorder.vg[-1]} V")
-
-        self.time_label = "Time: {:.2e} s".format(self.recorder.time[-1])
+        self.id_label.setText(f"Id: {float_to_eng_string(self.recorder.id[-1])} A")
+        self.ig_label.setText(f"Ig: {float_to_eng_string(self.recorder.ig[-1])} A")
+        self.vd_label.setText(f"Vd: {self.recorder.vd[-1]:.2f} V")
+        self.vg_label.setText(f"Vg: {self.recorder.vg[-1]:.2f} V")
+        self.time_label.setText(f"Time: {self.recorder.time[-1]:.2f} s")
 
         if self.cfg["X"]["axis"] == "Time":
             x = self.recorder.time
@@ -578,7 +580,7 @@ class MainWindow(QMainWindow):
         file_name, _ = QFileDialog.getSaveFileName(
             self,
             "Save Data",
-            "C:\\Keithley experiments\\",
+            "",
             "CSV Files (*.csv);;All Files (*)",
             options=options,
         )

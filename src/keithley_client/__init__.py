@@ -13,7 +13,7 @@ from PyQt5.QtGui import QFont
 from .gui.MainWindow import MainWindow
 from .config import FONT_SIZE
 
-__version__ = "0.1.3"
+__version__ = "0.1.4"
 __author__ = "Fabio T"
 
 win_title = f"Keithley SMU client {__version__} - {__author__}"
@@ -35,7 +35,7 @@ def cli():
 
     ## Usage
 
-    `keithley_client [--idvd] [--idvg] [--time] [--font-size] [--version] [--help]`
+    `keithley_client [--idvd] [--idvg] [--time] [--font-size] [--dummy] [--version] [--help]`
 
     ## Options
 
@@ -46,6 +46,8 @@ def cli():
     `--idvd`: show the output curve interface
 
     `--time`: show the time response interface
+
+    `--dummy`: use a dummy Keithley class to test the application
 
     `--font-size`: set the font size of the application
 
@@ -61,6 +63,11 @@ def cli():
     )
     parser.add_argument(
         "--time", action="store_true", help="show the time response interface"
+    )
+    parser.add_argument(
+        "--dummy",
+        action="store_true",
+        help="use a dummy Keithley class to test the application",
     )
     parser.add_argument(
         "--font-size",
@@ -91,7 +98,7 @@ def cli():
         mode = "Id-Vd"
 
     # Create the main window
-    main = MainWindow(win_title, mode)
+    main = MainWindow(win_title, mode, args.dummy)
     main.show()
 
     # Run the application
