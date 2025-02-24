@@ -11,7 +11,6 @@ from PyQt5.QtWidgets import QApplication
 from PyQt5.QtGui import QFont
 
 from .gui.MainWindow import MainWindow
-from .config import FONT_SIZE
 
 __version__ = "0.1.4"
 __author__ = "Fabio T"
@@ -35,7 +34,7 @@ def cli():
 
     ## Usage
 
-    `keithley_client [--idvd] [--idvg] [--time] [--font-size] [--dummy] [--version] [--help]`
+    `keithley_client [--idvd] [--idvg] [--time] [--font-size N] [--dummy] [--version] [--help]`
 
     ## Options
 
@@ -72,7 +71,7 @@ def cli():
     parser.add_argument(
         "--font-size",
         type=int,
-        default=FONT_SIZE,
+        default=8,
         help="set the font size of the application",
     )
     parser.add_argument(

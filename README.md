@@ -12,11 +12,9 @@ A Python-based graphical interface for controlling Keithley SMU 2600 Series
 
 ## Installation
 
-1. Clone this repository:
+1. Install via pip
 ```bash
-git clone https://github.com/yourusername/Keithley-scripts.git
-cd Keithley-scripts
-pip install .
+pip install git+https://www.github.com/fabio-terranova/Keithley-scripts
 ```
 
 ## Usage

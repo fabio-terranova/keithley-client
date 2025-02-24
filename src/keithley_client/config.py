@@ -2,8 +2,6 @@
 Configuration file for the Keithley client.
 """
 
-FONT_SIZE = 8
-
 KEITHLEY_ADDRESS = "GPIB0::26::INSTR"
 
 CONFIGS = {
