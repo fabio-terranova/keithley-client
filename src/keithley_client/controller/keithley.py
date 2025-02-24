@@ -17,7 +17,7 @@ class Keithley:
         self.instrument.write("*RST")
 
     def set_source_function(self, smu, function):
-        self.instrument.write(f"smu{smu}.source.func = smu{smu}.SOURCE.{function}")
+        self.instrument.write(f"smu{smu}.source.func = smu{smu}.{function}")
 
     def set_voltage_source(self, smu, voltage):
         self.instrument.write(f"smu{smu}.source.levelv = {voltage}")

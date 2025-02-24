@@ -30,8 +30,8 @@ class Recorder(QThread):
     def start(self, points, delay=1):
         # reset the keithley
         self.keithley.reset()
-        self.keithley.set_source_function("a", "VOLTAGE")
-        self.keithley.set_source_function("b", "VOLTAGE")
+        self.keithley.set_source_function("a", "OUTPUT_DCVOLTS")
+        self.keithley.set_source_function("b", "OUTPUT_DCVOLTS")
 
         # start the measurementù
         self.keithley.turn_ouput_on("a")
