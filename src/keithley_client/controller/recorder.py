@@ -57,8 +57,8 @@ class Recorder(QThread):
         if len(self.points) == 1:
             while self.recording:
                 [vg, vd] = self.points[0]
-                self.keithley.set_voltage_source(self.smu_cfg["g"], vg)
-                self.keithley.set_voltage_source(self.smu_cfg["d"], vd)
+                self.keithley.set_voltage_source("a", vg)
+                self.keithley.set_voltage_source("b", vd)
                 time.sleep(self.delay)
                 self.time.append(time.time() - start_time)
                 self.vg.append(vg)
@@ -70,8 +70,8 @@ class Recorder(QThread):
         for [vg, vd] in self.points:
             if not self.recording:
                 break
-            self.keithley.set_voltage_source(self.smu_cfg["g"], vg)
-            self.keithley.set_voltage_source(self.smu_cfg["d"], vd)
+            self.keithley.set_voltage_source("a", vg)
+            self.keithley.set_voltage_source("b", vd)
             time.sleep(self.delay)
             self.time.append(time.time() - start_time)
             self.vg.append(vg)
@@ -87,9 +87,9 @@ class Recorder(QThread):
 
     def save(self, filename, columns=None):
         if columns is None:
-            columns = ["time", "Vg", "Vd", "Id", "Ig"]
+            columns = ["Time", "Vg", "Vd", "Id", "Ig"]
         data = {
-            "time": self.time,
+            "Time": self.time,
             "Vg": self.vg,
             "Vd": self.vd,
             "Id": self.id,
