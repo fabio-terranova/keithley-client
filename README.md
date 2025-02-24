@@ -14,7 +14,7 @@ A Python-based graphical interface for controlling Keithley SMU 2600 Series
 
 1. Install via pip
 ```bash
-pip install git+https://www.github.com/fabio-terranova/Keithley-scripts
+pip install git+https://www.github.com/fabio-terranova/keithley-client
 ```
 
 ## Usage
