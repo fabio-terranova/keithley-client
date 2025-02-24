@@ -623,10 +623,10 @@ class MainWindow(QMainWindow):
         """
         Update the plot
         """
-        self.id_label.setText(f"Id: {self.recorder.id[-1]:.2e} A")
-        self.ig_label.setText(f"Ig: {self.recorder.ig[-1]:.2e} A")
-        self.vd_label.setText(f"Vd: {self.recorder.vd[-1]:.2e} V")
-        self.vg_label.setText(f"Vg: {self.recorder.vg[-1]:.2e} V")
+        self.id_label.setText(f"Id: {self.recorder.id[-1]} A")
+        self.ig_label.setText(f"Ig: {self.recorder.ig[-1]} A")
+        self.vd_label.setText(f"Vd: {self.recorder.vd[-1]} V")
+        self.vg_label.setText(f"Vg: {self.recorder.vg[-1]} V")
 
         self.time_label = "Time: {:.2e} s".format(self.recorder.time[-1])
 
