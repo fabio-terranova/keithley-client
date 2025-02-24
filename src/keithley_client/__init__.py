@@ -11,15 +11,10 @@ from PyQt5.QtWidgets import QApplication
 
 from keithley_client.gui.MainWindow import MainWindow
 
-__version__ = "0.1.0"
-__author__ = "Fabio"
+__version__ = "0.1.2"
+__author__ = "Fabio T"
 
 win_title = f"Keithley SMU client {__version__} - {__author__}"
-
-SMU_config = {
-    "g": "a",
-    "d": "b",
-}
 
 
 def config_pyqtgraph():
@@ -84,7 +79,7 @@ def cli():
         mode = "Id-Vd"
 
     # Create the main window
-    main = MainWindow(win_title, mode, SMU_config)
+    main = MainWindow(win_title, mode)
     main.show()
 
     # Run the application
