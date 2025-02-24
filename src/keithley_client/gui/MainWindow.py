@@ -30,7 +30,7 @@ CONFIGS = {
         "Vd": {
             "mode": "Sweep",
             "fixed": {"value": 0},
-            "sweep": {"start": 0, "stop": -8, "steps": 51},
+            "sweep": {"start": 0, "stop": -6, "steps": 51},
         },
         "Y1": {
             "enabled": True,
@@ -52,12 +52,12 @@ CONFIGS = {
         "Vg": {
             "mode": "Sweep",
             "fixed": {"value": -6},
-            "sweep": {"start": 2, "stop": -8, "steps": 51},
+            "sweep": {"start": 2, "stop": -6, "steps": 51},
         },
         "Vd": {
             "mode": "Fixed",
             "fixed": {"value": -7},
-            "sweep": {"start": 0, "stop": -8, "steps": 51},
+            "sweep": {"start": 0, "stop": -6, "steps": 51},
         },
         "Y1": {
             "enabled": True,
@@ -79,12 +79,12 @@ CONFIGS = {
         "Vg": {
             "mode": "Fixed",
             "fixed": {"value": -6},
-            "sweep": {"start": 2, "stop": -8, "steps": 51},
+            "sweep": {"start": 2, "stop": -6, "steps": 51},
         },
         "Vd": {
             "mode": "Fixed",
             "fixed": {"value": -7},
-            "sweep": {"start": 0, "stop": -8, "steps": 51},
+            "sweep": {"start": 0, "stop": -6, "steps": 51},
         },
         "Y1": {
             "enabled": True,
