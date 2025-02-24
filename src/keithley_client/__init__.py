@@ -8,10 +8,12 @@ import argparse
 import pyqtgraph as pg
 
 from PyQt5.QtWidgets import QApplication
+from PyQt5.QtGui import QFont
 
-from keithley_client.gui.MainWindow import MainWindow
+from .gui.MainWindow import MainWindow
+from .config import FONT_SIZE
 
-__version__ = "0.1.2"
+__version__ = "0.1.3"
 __author__ = "Fabio T"
 
 win_title = f"Keithley SMU client {__version__} - {__author__}"
@@ -21,7 +23,10 @@ def config_pyqtgraph():
     """
     PyQtGraph configuration
     """
-    pg.setConfigOptions(background="w", foreground="k", leftButtonPan=False)
+    pg.setConfigOption("antialias", True)
+    pg.setConfigOption("background", "w")
+    pg.setConfigOption("foreground", "k")
+    pg.setConfigOption("leftButtonPan", False)
 
 
 def cli():
@@ -30,11 +35,9 @@ def cli():
 
     ## Usage
 
-    `keithley_client [--idvd] [--idvg] [--time] [--help] [--version]`
+    `keithley_client [--idvd] [--idvg] [--time] [--font-size] [--version] [--help]`
 
     ## Options
-
-    The default behavior is to show an interface that lets the user choose the type of measurement to perform.
 
     The following options can be used to show a specific interface:
 
@@ -43,6 +46,8 @@ def cli():
     `--idvd`: show the output curve interface
 
     `--time`: show the time response interface
+
+    `--font-size`: set the font size of the application
 
     `--version`: show the version of the program
     """
@@ -58,6 +63,12 @@ def cli():
         "--time", action="store_true", help="show the time response interface"
     )
     parser.add_argument(
+        "--font-size",
+        type=int,
+        default=FONT_SIZE,
+        help="set the font size of the application",
+    )
+    parser.add_argument(
         "--version",
         "-v",
         action="version",
@@ -69,6 +80,7 @@ def cli():
 
     # Create the application
     app = QApplication([])
+    app.setFont(QFont("Arial", args.font_size))
     if args.idvg:
         mode = "Id-Vg"
     elif args.idvd:

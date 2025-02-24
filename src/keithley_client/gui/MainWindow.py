@@ -283,7 +283,7 @@ class MainWindow(QMainWindow):
         for plot in self.plot_items:
             plot.showGrid(x=True, y=True)
         self.curves = [
-            self.plot_items[i].plot(pen=None, symbol="o", symbolSize=15)
+            self.plot_items[i].plot(pen=None, symbol="o", symbolSize=10)
             for i in range(2)
         ]
 
@@ -299,7 +299,8 @@ class MainWindow(QMainWindow):
             QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding), 4, 0
         )
         self.layout.addWidget(self.info_group, 5, 0)
-        self.layout.addWidget(self.plot_group, 0, 1, 6, 1)
+        self.layout.addWidget(self.plot_group, 0, 1, 6, 2)
+        self.layout.setColumnStretch(1, 2)
 
         self.central_widget = QWidget()
         self.central_widget.setLayout(self.layout)
@@ -496,72 +497,47 @@ class MainWindow(QMainWindow):
         self.info_label.setText("Measurement started")
 
         self.points = []
+        if self.Vg_mode_combo.currentText() == "Fixed":
+            if self.Vd_mode_combo.currentText() == "Fixed":
+                self.points.append([self.Vg_spin.value(), self.Vd_spin.value()])
+            else:
+                for vd in np.linspace(
+                    self.Vd_start_spin.value(),
+                    self.Vd_stop_spin.value(),
+                    self.Vd_step_spin.value(),
+                ):
+                    self.points.append([self.Vg_spin.value(), vd])
+                if self.Vd_bidirectional_checkbox.isChecked():
+                    for vd in np.linspace(
+                        self.Vd_stop_spin.value(),
+                        self.Vd_start_spin.value(),
+                        self.Vd_step_spin.value(),
+                    ):
+                        self.points.append([self.Vg_spin.value(), vd])
+        else:
+            for vg in np.linspace(
+                self.Vg_start_spin.value(),
+                self.Vg_stop_spin.value(),
+                self.Vg_step_spin.value(),
+            ):
+                if self.Vd_mode_combo.currentText() == "Fixed":
+                    self.points.append([vg, self.Vd_spin.value()])
+                else:
+                    for vd in np.linspace(
+                        self.Vd_start_spin.value(),
+                        self.Vd_stop_spin.value(),
+                        self.Vd_step_spin.value(),
+                    ):
+                        self.points.append([vg, vd])
+                    if self.Vd_bidirectional_checkbox.isChecked():
+                        for vd in np.linspace(
+                            self.Vd_stop_spin.value(),
+                            self.Vd_start_spin.value(),
+                            self.Vd_step_spin.value(),
+                        ):
+                            self.points.append([vg, vd])
 
-        if (
-            self.Vg_mode_combo.currentText() == "Sweep"
-            and self.Vd_mode_combo.currentText() == "Sweep"
-        ):
-            Vg_start = self.Vg_start_spin.value()
-            Vg_stop = self.Vg_stop_spin.value()
-            Vg_step = self.Vg_step_spin.value()
-            Vd_start = self.Vd_start_spin.value()
-            Vd_stop = self.Vd_stop_spin.value()
-            Vd_step = self.Vd_step_spin.value()
-
-            for Vg in np.linspace(Vg_start, Vg_stop, Vg_step):
-                for Vd in np.linspace(Vd_start, Vd_stop, Vd_step):
-                    self.points.append([Vg, Vd])
-
-            if self.Vg_bidirectional_checkbox.isChecked():
-                for Vg in np.linspace(Vg_stop, Vg_start, Vg_step):
-                    for Vd in np.linspace(Vd_start, Vd_stop, Vd_step):
-                        self.points.append([Vg, Vd])
-
-            self.recorder.start(self.points, self.delay_spin.value())
-        elif (
-            self.Vg_mode_combo.currentText() == "Fixed"
-            and self.Vd_mode_combo.currentText() == "Sweep"
-        ):
-            Vg = self.Vg_spin.value()
-            Vd_start = self.Vd_start_spin.value()
-            Vd_stop = self.Vd_stop_spin.value()
-            Vd_step = self.Vd_step_spin.value()
-
-            for Vd in np.linspace(Vd_start, Vd_stop, Vd_step):
-                self.points.append([Vg, Vd])
-
-            if self.Vd_bidirectional_checkbox.isChecked():
-                for Vd in np.linspace(Vd_stop, Vd_start, Vd_step):
-                    self.points.append([Vg, Vd])
-
-            self.recorder.start(self.points, self.delay_spin.value())
-        elif (
-            self.Vg_mode_combo.currentText() == "Sweep"
-            and self.Vd_mode_combo.currentText() == "Fixed"
-        ):
-            Vd = self.Vd_spin.value()
-            Vg_start = self.Vg_start_spin.value()
-            Vg_stop = self.Vg_stop_spin.value()
-            Vg_step = self.Vg_step_spin.value()
-
-            for Vg in np.linspace(Vg_start, Vg_stop, Vg_step):
-                self.points.append([Vg, Vd])
-
-            if self.Vg_bidirectional_checkbox.isChecked():
-                for Vg in np.linspace(Vg_stop, Vg_start, Vg_step):
-                    self.points.append([Vg, Vd])
-
-            self.recorder.start(self.points, self.delay_spin.value())
-        elif (
-            self.Vg_mode_combo.currentText() == "Fixed"
-            and self.Vd_mode_combo.currentText() == "Fixed"
-        ):
-            Vg = self.Vg_spin.value()
-            Vd = self.Vd_spin.value()
-
-            self.points.append([Vg, Vd])
-
-            self.recorder.start(self.points, self.delay_spin.value())
+        self.recorder.start(self.points, self.delay_spin.value())
 
     def stop(self):
         """
@@ -600,14 +576,18 @@ class MainWindow(QMainWindow):
         """
         options = QFileDialog.Options()
         file_name, _ = QFileDialog.getSaveFileName(
-            self, "Save Data", "", "CSV Files (*.csv);;All Files (*)", options=options
+            self,
+            "Save Data",
+            "C:\\Keithley experiments\\",
+            "CSV Files (*.csv);;All Files (*)",
+            options=options,
         )
 
         columns = self.cfg["saving"]
 
         if file_name:
             self.recorder.save(file_name, columns)
-            self.info_label.setText(f"Data saved to {file_name}")
+            self.info_label.setText("Data saved")
         else:
             self.info_label.setText("Data not saved")
 
