@@ -57,8 +57,8 @@ class Recorder(QThread):
         if len(self.points) == 1:
             while self.recording:
                 [vg, vd] = self.points[0]
-                self.keithley.set_voltage_source("a", vg)
-                self.keithley.set_voltage_source("b", vd)
+                self.keithley.set_voltage_source("a", vd)
+                self.keithley.set_voltage_source("b", vg)
                 time.sleep(self.delay)
                 self.time.append(time.time() - start_time)
                 self.vg.append(vg)
@@ -70,8 +70,8 @@ class Recorder(QThread):
         for [vg, vd] in self.points:
             if not self.recording:
                 break
-            self.keithley.set_voltage_source("a", vg)
-            self.keithley.set_voltage_source("b", vd)
+            self.keithley.set_voltage_source("a", vd)
+            self.keithley.set_voltage_source("b", vg)
             time.sleep(self.delay)
             self.time.append(time.time() - start_time)
             self.vg.append(vg)
