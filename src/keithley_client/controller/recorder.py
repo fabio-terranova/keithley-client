@@ -15,6 +15,8 @@ class Recorder(QThread):
     def __init__(self, keithley_address, smu_cfg):
         super().__init__()
         self.keithley = Keithley(keithley_address)
+        self.keithley.set_source_function("b", "OUTPUT_DCVOLTS")
+        self.keithley.set_source_function("a", "OUTPUT_DCVOLTS")
         self.smu_cfg = smu_cfg
         self.points = []
         self.id = deque()
@@ -30,8 +32,6 @@ class Recorder(QThread):
     def start(self, points, delay=1):
         # reset the keithley
         self.keithley.reset()
-        self.keithley.set_source_function("a", "OUTPUT_DCVOLTS")
-        self.keithley.set_source_function("b", "OUTPUT_DCVOLTS")
 
         # start the measurementù
         self.keithley.turn_ouput_on("a")
@@ -82,8 +82,8 @@ class Recorder(QThread):
 
     def stop(self):
         self.recording = False
-        self.keithley.turn_output_off("a")
         self.keithley.turn_output_off("b")
+        self.keithley.turn_output_off("a")
 
     def save(self, filename, columns=None):
         if columns is None:
