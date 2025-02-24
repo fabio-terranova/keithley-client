@@ -49,10 +49,12 @@ class Keithley:
         return self.instrument.query(f"print(smu{smu}.source.levelv)")
 
     def measure_i(self, smu):
-        return self.instrument.query(f"print(smu{smu}.measure.i())")
+        res = self.self.instrument.query(f"print(smu{smu}.measure.i())")
+        return float(res)
 
     def measure_v(self, smu):
-        return self.instrument.query(f"print(smu{smu}.measure.v())")
+        res = self.instrument.query(f"print(smu{smu}.measure.v())")
+        return float(res)
 
     def reset_smu(self, smu):
         self.instrument.write(f"smu{smu}.reset()")
