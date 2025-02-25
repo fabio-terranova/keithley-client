@@ -1,4 +1,5 @@
 import numpy as np
+import copy
 from PyQt5.QtWidgets import (
     QCheckBox,
     QComboBox,
@@ -18,27 +19,14 @@ from pyqtgraph import GraphicsLayoutWidget
 
 from ..controller.recorder import Recorder
 from ..config import CONFIGS, KEITHLEY_ADDRESS
+from ..utils import float_to_eng_string
 
 
-def float_to_eng_string(f):
+def copy_var(var):
     """
-    Convert a float to an engineering string
+    Copy a variable
     """
-    up = ["", "k", "M", "G", "T", "P", "E", "Z", "Y"]
-    down = ["m", "u", "n", "p", "f", "a", "z", "y"]
-
-    if f == 0:
-        return "0"
-
-    degree = int(np.floor(np.log10(abs(f)) / 3))
-    if degree > 0:
-        value = f / 10 ** (3 * degree)
-        unit = up[degree]
-    else:
-        value = f * 10 ** (-3 * degree)
-        unit = down[-degree - 1]
-
-    return f"{value:.2f} {unit}"
+    return var
 
 
 class MainWindow(QMainWindow):
@@ -73,7 +61,6 @@ class MainWindow(QMainWindow):
         self.config_combo.addItem("Id-Vg")
         self.config_combo.addItem("Time")
         self.config_combo.setCurrentText(self.mode)
-        self.config_combo.currentIndexChanged.connect(self.update_config)
 
         self.mode_layout.addWidget(self.config_combo)
 
@@ -90,7 +77,6 @@ class MainWindow(QMainWindow):
         self.Vg_mode_combo = QComboBox()
         self.Vg_mode_combo.addItem("Sweep")
         self.Vg_mode_combo.addItem("Fixed")
-        self.Vg_mode_combo.currentIndexChanged.connect(self.update_Vg_mode)
 
         self.Vg_bidirectional_checkbox = QCheckBox("Bidirectional")
 
@@ -129,7 +115,6 @@ class MainWindow(QMainWindow):
         self.Vd_mode_combo = QComboBox()
         self.Vd_mode_combo.addItem("Sweep")
         self.Vd_mode_combo.addItem("Fixed")
-        self.Vd_mode_combo.currentIndexChanged.connect(self.update_Vd_mode)
 
         self.Vd_bidirectional_checkbox = QCheckBox("Bidirectional")
 
@@ -146,12 +131,6 @@ class MainWindow(QMainWindow):
         self.Vd_step_spin = QSpinBox()
 
         self.Vd_step_value = QLabel()
-
-        for widget in [self.Vg_start_spin, self.Vg_stop_spin, self.Vg_step_spin]:
-            widget.valueChanged.connect(self.update_Vg_step)
-
-        for widget in [self.Vd_start_spin, self.Vd_stop_spin, self.Vd_step_spin]:
-            widget.valueChanged.connect(self.update_Vd_step)
 
         for widget in [
             self.Vg_spin,
@@ -196,22 +175,18 @@ class MainWindow(QMainWindow):
         self.Y1_combo = QComboBox()
         self.Y1_combo.addItem("Id")
         self.Y1_combo.addItem("Ig")
-        self.Y1_combo.currentIndexChanged.connect(self.update_Y2)
 
         self.Y2_axis_checkbox = QCheckBox("Y2 axis")
         self.Y2_axis_checkbox.setChecked(True)
-        self.Y2_axis_checkbox.stateChanged.connect(self.Y2_checkbox_state_changed)
         self.Y2_combo = QComboBox()
         self.Y2_combo.addItem("Ig")
         self.Y2_combo.addItem("Id")
-        self.Y2_combo.currentIndexChanged.connect(self.update_Y1)
 
         self.X_label = QLabel("X axis")
         self.X_combo = QComboBox()
         self.X_combo.addItem("Vd")
         self.X_combo.addItem("Vg")
         self.X_combo.addItem("Time")
-        self.X_combo.currentIndexChanged.connect(self.update_X)
 
         self.delay_label = QLabel("Delay (s)")
         self.delay_spin = QDoubleSpinBox()
@@ -235,11 +210,8 @@ class MainWindow(QMainWindow):
         self.buttons_group.setLayout(self.buttons_layout)
 
         self.start_button = QPushButton("Start")
-        self.start_button.clicked.connect(self.start)
         self.stop_button = QPushButton("Stop")
-        self.stop_button.clicked.connect(self.stop)
         self.save_button = QPushButton("Save")
-        self.save_button.clicked.connect(self.save)
 
         self.columns_group = QGroupBox("Saving")
         self.columns_layout = QGridLayout()
@@ -250,16 +222,6 @@ class MainWindow(QMainWindow):
         self.column_Vd_checkbox = QCheckBox("Vd")
         self.column_Id_checkbox = QCheckBox("Id")
         self.column_Ig_checkbox = QCheckBox("Ig")
-
-        for widget in [
-            self.column_time_checkbox,
-            self.column_Vg_checkbox,
-            self.column_Vd_checkbox,
-            self.column_Id_checkbox,
-            self.column_Ig_checkbox,
-        ]:
-            widget.setChecked(True)
-            widget.stateChanged.connect(self.update_columns)
 
         self.columns_layout.addWidget(self.column_time_checkbox, 0, 0)
         self.columns_layout.addWidget(self.column_Vg_checkbox, 0, 1)
@@ -327,43 +289,47 @@ class MainWindow(QMainWindow):
         self.central_widget.setLayout(self.layout)
         self.setCentralWidget(self.central_widget)
 
+        self.set_connections()
         self.set_config(self.cfg)
 
-    def update_Vg_mode(self):
-        """
-        Update the Vg group
-        """
-        for widget in [
-            self.Vg_start_spin,
-            self.Vg_stop_spin,
-            self.Vg_step_spin,
-            self.Vg_start_label,
-            self.Vg_stop_label,
-            self.Vg_step_label,
-            self.Vg_step_value,
-            self.Vg_bidirectional_checkbox,
-        ]:
-            widget.setVisible(self.Vg_mode_combo.currentText() == "Sweep")
-        for widget in [self.Vg_value_label, self.Vg_spin]:
-            widget.setVisible(self.Vg_mode_combo.currentText() == "Fixed")
+    def set_connections(self):
+        self.config_combo.currentIndexChanged.connect(self.update_config)
 
-    def update_Vd_mode(self):
-        """
-        Update the Vd group
-        """
+        self.Vg_mode_combo.currentIndexChanged.connect(self.update_Vg_mode)
+        self.Vd_mode_combo.currentIndexChanged.connect(self.update_Vd_mode)
+
+        self.Vg_bidirectional_checkbox.stateChanged.connect(
+            self.update_Vg_bidirectional
+        )
+        self.Vd_bidirectional_checkbox.stateChanged.connect(
+            self.update_Vd_bidirectional
+        )
+
+        for widget in [self.Vg_start_spin, self.Vg_stop_spin, self.Vg_step_spin]:
+            widget.valueChanged.connect(self.update_Vg_step)
+
+        for widget in [self.Vd_start_spin, self.Vd_stop_spin, self.Vd_step_spin]:
+            widget.valueChanged.connect(self.update_Vd_step)
+
+        self.Y1_combo.currentIndexChanged.connect(self.update_Y2)
+
+        self.Y2_axis_checkbox.stateChanged.connect(self.Y2_checkbox_state_changed)
+        self.Y2_combo.currentIndexChanged.connect(self.update_Y1)
+        self.X_combo.currentIndexChanged.connect(self.update_X)
+
+        self.start_button.clicked.connect(self.start)
+        self.stop_button.clicked.connect(self.stop)
+        self.save_button.clicked.connect(self.save)
+
         for widget in [
-            self.Vd_start_spin,
-            self.Vd_stop_spin,
-            self.Vd_step_spin,
-            self.Vd_start_label,
-            self.Vd_stop_label,
-            self.Vd_step_label,
-            self.Vd_step_value,
-            self.Vd_bidirectional_checkbox,
+            self.column_time_checkbox,
+            self.column_Vg_checkbox,
+            self.column_Vd_checkbox,
+            self.column_Id_checkbox,
+            self.column_Ig_checkbox,
         ]:
-            widget.setVisible(self.Vd_mode_combo.currentText() == "Sweep")
-        for widget in [self.Vd_value_label, self.Vd_spin]:
-            widget.setVisible(self.Vd_mode_combo.currentText() == "Fixed")
+            widget.setChecked(True)
+            widget.stateChanged.connect(self.update_columns)
 
     def update_Y2(self):
         """
@@ -490,8 +456,75 @@ class MainWindow(QMainWindow):
         self.column_Id_checkbox.setChecked("Id" in cfg["saving"])
         self.column_Ig_checkbox.setChecked("Ig" in cfg["saving"])
 
-        self.update_Vg_mode()
-        self.update_Vd_mode()
+        if cfg["Vd"]["mode"] == "Sweep":
+            for widget in [
+                self.Vd_start_spin,
+                self.Vd_stop_spin,
+                self.Vd_step_spin,
+                self.Vd_start_label,
+                self.Vd_stop_label,
+                self.Vd_step_label,
+                self.Vd_step_value,
+                self.Vd_bidirectional_checkbox,
+            ]:
+                widget.show()
+            for widget in [
+                self.Vd_value_label,
+                self.Vd_spin,
+            ]:
+                widget.hide()
+        else:
+            for widget in [
+                self.Vd_start_spin,
+                self.Vd_stop_spin,
+                self.Vd_step_spin,
+                self.Vd_start_label,
+                self.Vd_stop_label,
+                self.Vd_step_label,
+                self.Vd_step_value,
+                self.Vd_bidirectional_checkbox,
+            ]:
+                widget.hide()
+            for widget in [
+                self.Vd_value_label,
+                self.Vd_spin,
+            ]:
+                widget.show()
+
+        if cfg["Vg"]["mode"] == "Sweep":
+            for widget in [
+                self.Vg_start_spin,
+                self.Vg_stop_spin,
+                self.Vg_step_spin,
+                self.Vg_start_label,
+                self.Vg_stop_label,
+                self.Vg_step_label,
+                self.Vg_step_value,
+                self.Vg_bidirectional_checkbox,
+            ]:
+                widget.show()
+            for widget in [
+                self.Vg_value_label,
+                self.Vg_spin,
+            ]:
+                widget.hide()
+        else:
+            for widget in [
+                self.Vg_start_spin,
+                self.Vg_stop_spin,
+                self.Vg_step_spin,
+                self.Vg_start_label,
+                self.Vg_stop_label,
+                self.Vg_step_label,
+                self.Vg_step_value,
+                self.Vg_bidirectional_checkbox,
+            ]:
+                widget.hide()
+            for widget in [
+                self.Vg_value_label,
+                self.Vg_spin,
+            ]:
+                widget.show()
 
         self.plot_items[0].setLabel("bottom", cfg["X"]["axis"], units=cfg["X"]["unit"])
         self.plot_items[0].setLabel("left", cfg["Y1"]["axis"], units=cfg["Y1"]["unit"])
@@ -508,7 +541,39 @@ class MainWindow(QMainWindow):
         Update the configuration
         """
         mode = self.config_combo.currentText()
-        self.cfg = CONFIGS[mode]
+        self.cfg = copy.deepcopy(CONFIGS[mode])
+        self.set_config(self.cfg)
+
+    def update_Vg_mode(self):
+        """
+        Update the Vg mode
+        """
+        self.cfg["Vg"]["mode"] = self.Vg_mode_combo.currentText()
+        self.set_config(self.cfg)
+
+    def update_Vd_mode(self):
+        """
+        Update the Vd mode
+        """
+        self.cfg["Vd"]["mode"] = self.Vd_mode_combo.currentText()
+        self.set_config(self.cfg)
+
+    def update_Vg_bidirectional(self):
+        """
+        Update the Vg bidirectional
+        """
+        self.cfg["Vg"]["sweep"]["bidirectional"] = (
+            self.Vg_bidirectional_checkbox.isChecked()
+        )
+        self.set_config(self.cfg)
+
+    def update_Vd_bidirectional(self):
+        """
+        Update the Vd bidirectional
+        """
+        self.cfg["Vd"]["sweep"]["bidirectional"] = (
+            self.Vd_bidirectional_checkbox.isChecked()
+        )
         self.set_config(self.cfg)
 
     def start(self):
@@ -553,8 +618,8 @@ class MainWindow(QMainWindow):
         """
         Update the plot
         """
-        self.id_label.setText(f"Id: {float_to_eng_string(self.recorder.id[-1])} A")
-        self.ig_label.setText(f"Ig: {float_to_eng_string(self.recorder.ig[-1])} A")
+        self.id_label.setText(f"Id: {float_to_eng_string(self.recorder.id[-1])}A")
+        self.ig_label.setText(f"Ig: {float_to_eng_string(self.recorder.ig[-1])}A")
         self.vd_label.setText(f"Vd: {self.recorder.vd[-1]:.2f} V")
         self.vg_label.setText(f"Vg: {self.recorder.vg[-1]:.2f} V")
         self.time_label.setText(f"Time: {self.recorder.time[-1]:.2f} s")
