@@ -370,7 +370,30 @@ class MainWindow(QMainWindow):
             lambda: self.update_config("X.axis", self.X_combo.currentText())
         )
 
-        # ...rest of existing connections...
+        self.start_button.clicked.connect(self.start)
+        self.stop_button.clicked.connect(self.stop)
+        self.save_button.clicked.connect(self.save)
+
+        self.column_time_checkbox.stateChanged.connect(
+            lambda: self.update_config(
+                "saving.Time", self.column_time_checkbox.isChecked()
+            )
+        )
+        self.column_Vg_checkbox.stateChanged.connect(
+            lambda: self.update_config("saving.Vg", self.column_Vg_checkbox.isChecked())
+        )
+        self.column_Vd_checkbox.stateChanged.connect(
+            lambda: self.update_config("saving.Vd", self.column_Vd_checkbox.isChecked())
+        )
+        self.column_Id_checkbox.stateChanged.connect(
+            lambda: self.update_config("saving.Id", self.column_Id_checkbox.isChecked())
+        )
+        self.column_Ig_checkbox.stateChanged.connect(
+            lambda: self.update_config("saving.Ig", self.column_Ig_checkbox.isChecked())
+        )
+
+        self.Vd_step_spin.valueChanged.connect(self.update_Vd_step)
+        self.Vg_step_spin.valueChanged.connect(self.update_Vg_step)
 
     def update_mode(self):
         """Update the mode and load its configuration"""
@@ -679,7 +702,11 @@ class MainWindow(QMainWindow):
             options=options,
         )
 
-        columns = self.configs[self.mode]["saving"]
+        columns = [
+            c
+            for c in ["Time", "Vg", "Vd", "Id", "Ig"]
+            if self.configs[self.mode]["saving"].get(c, False)
+        ]
 
         if file_name:
             self.recorder.save(file_name, columns)

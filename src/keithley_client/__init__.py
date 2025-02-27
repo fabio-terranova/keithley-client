@@ -16,7 +16,7 @@ from PyQt5.QtWidgets import QApplication
 from .config import CONFIGS
 from .gui.MainWindow import MainWindow
 
-__version__ = "0.2.1"
+__version__ = "0.2.2"
 __author__ = "Fabio T"
 
 win_title = f"Keithley SMU client {__version__} - {__author__}"
