@@ -366,6 +366,9 @@ class MainWindow(QMainWindow):
         self.Y2_combo.currentIndexChanged.connect(
             lambda: self.update_config("Y2.axis", self.Y2_combo.currentText())
         )
+        self.Y2_axis_checkbox.stateChanged.connect(
+            lambda: self.update_config("Y2.enabled", self.Y2_axis_checkbox.isChecked())
+        )
         self.X_combo.currentIndexChanged.connect(
             lambda: self.update_config("X.axis", self.X_combo.currentText())
         )
@@ -423,6 +426,18 @@ class MainWindow(QMainWindow):
         if path == "X.axis":
             cfg["X"]["unit"] = "V" if value != "Time" else "s"
 
+        # Automatically update Y2 axis based on Y1
+        if path == "Y1.axis":
+            if value == "Id":
+                self.configs[self.mode]["Y2"]["axis"] = "Ig"
+            else:
+                self.configs[self.mode]["Y2"]["axis"] = "Id"
+        if path == "Y2.axis":
+            if value == "Id":
+                self.configs[self.mode]["Y1"]["axis"] = "Ig"
+            else:
+                self.configs[self.mode]["Y1"]["axis"] = "Id"
+
         # Update plot labels and visibility
         self.plot_items[0].setLabel("bottom", cfg["X"]["axis"], units=cfg["X"]["unit"])
         self.plot_items[0].setLabel("left", cfg["Y1"]["axis"], units=cfg["Y1"]["unit"])
@@ -437,6 +452,8 @@ class MainWindow(QMainWindow):
         # Save the updated configuration
         with open(os.path.join(user_dir, "user.json"), "w") as f:
             json.dump(self.configs, f)
+
+        self.set_config(cfg)
 
     def update_source_visibility(self, source):
         """Update visibility of voltage source controls"""
