@@ -158,11 +158,11 @@ class MainWindow(QMainWindow):
             self.Vd_stop_spin,
         ]:
             widget.setDecimals(2)
-            widget.setRange(-10, 10)
+            widget.setRange(-20, 20)
             widget.setSingleStep(1)
 
         for widget in [self.Vg_step_spin, self.Vd_step_spin]:
-            widget.setMinimum(1)
+            widget.setMinimum(2)
             widget.setMaximum(1000)
 
         self.Vd_layout.addWidget(self.Vd_mode_label, 0, 0)
