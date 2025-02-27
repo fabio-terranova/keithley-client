@@ -9,14 +9,12 @@ CONFIGS = {
         "Vg": {
             "mode": "Sweep",
             "fixed": {"value": -6},
-            "sweep": {"start": 2, "stop": -6, "steps": 5},
-            "bidirectional": False,
+            "sweep": {"start": 2, "stop": -6, "steps": 5, "bidirectional": False},
         },
         "Vd": {
             "mode": "Sweep",
             "fixed": {"value": 0},
-            "sweep": {"start": 0, "stop": -6, "steps": 51},
-            "bidirectional": False,
+            "sweep": {"start": 0, "stop": -6, "steps": 51, "bidirectional": False},
         },
         "Y1": {
             "enabled": True,
@@ -38,14 +36,12 @@ CONFIGS = {
         "Vg": {
             "mode": "Sweep",
             "fixed": {"value": -6},
-            "sweep": {"start": 2, "stop": -6, "steps": 51},
-            "bidirectional": True,
+            "sweep": {"start": 2, "stop": -6, "steps": 51, "bidirectional": True},
         },
         "Vd": {
             "mode": "Fixed",
             "fixed": {"value": -7},
-            "sweep": {"start": 0, "stop": -6, "steps": 51},
-            "bidirectional": False,
+            "sweep": {"start": 0, "stop": -6, "steps": 51, "bidirectional": False},
         },
         "Y1": {
             "enabled": True,
@@ -67,14 +63,12 @@ CONFIGS = {
         "Vg": {
             "mode": "Fixed",
             "fixed": {"value": -6},
-            "sweep": {"start": 2, "stop": -6, "steps": 51},
-            "bidirectional": False,
+            "sweep": {"start": 2, "stop": -6, "steps": 51, "bidirectional": False},
         },
         "Vd": {
             "mode": "Fixed",
             "fixed": {"value": -7},
-            "sweep": {"start": 0, "stop": -6, "steps": 51},
-            "bidirectional": False,
+            "sweep": {"start": 0, "stop": -6, "steps": 51, "bidirectional": False},
         },
         "Y1": {
             "enabled": True,

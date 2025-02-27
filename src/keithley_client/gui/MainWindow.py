@@ -16,6 +16,7 @@ from PyQt5.QtWidgets import (
     QFileDialog,
 )
 from pyqtgraph import GraphicsLayoutWidget
+import json
 
 from ..controller.recorder import Recorder
 from ..config import CONFIGS, KEITHLEY_ADDRESS
@@ -39,7 +40,16 @@ class MainWindow(QMainWindow):
 
         self.win_title = win_title
         self.mode = mode
-        self.cfg = CONFIGS[mode]
+        try:
+            with open("config.json", "r") as f:
+                self.configs = json.load(f)
+                self.cfg = self.configs[mode]
+                print("Found config file")
+        except FileNotFoundError:
+            self.configs = CONFIGS
+            self.cfg = CONFIGS[mode]
+            print("No config file found")
+
         self.recorder = Recorder(KEITHLEY_ADDRESS, dummy=dummy)
         self.recorder.data_ready.connect(self.update_plots)
 
@@ -55,6 +65,7 @@ class MainWindow(QMainWindow):
         self.mode_group = QGroupBox("Measurement mode")
         self.mode_layout = QGridLayout()
         self.mode_group.setLayout(self.mode_layout)
+        self.restore_config_button = QPushButton("Restore configurations")
 
         self.config_combo = QComboBox()
         self.config_combo.addItem("Id-Vd")
@@ -63,6 +74,7 @@ class MainWindow(QMainWindow):
         self.config_combo.setCurrentText(self.mode)
 
         self.mode_layout.addWidget(self.config_combo)
+        self.mode_layout.addWidget(self.restore_config_button)
 
         # Voltage source configuration
         self.voltage_group = QGroupBox("Voltage configuration")
@@ -290,10 +302,12 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.central_widget)
 
         self.set_connections()
+
         self.set_config(self.cfg)
 
     def set_connections(self):
         self.config_combo.currentIndexChanged.connect(self.update_config)
+        self.restore_config_button.clicked.connect(self.restore_config)
 
         self.Vg_mode_combo.currentIndexChanged.connect(self.update_Vg_mode)
         self.Vd_mode_combo.currentIndexChanged.connect(self.update_Vd_mode)
@@ -311,10 +325,9 @@ class MainWindow(QMainWindow):
         for widget in [self.Vd_start_spin, self.Vd_stop_spin, self.Vd_step_spin]:
             widget.valueChanged.connect(self.update_Vd_step)
 
-        self.Y1_combo.currentIndexChanged.connect(self.update_Y2)
-
+        self.Y1_combo.currentIndexChanged.connect(self.update_Y1)
         self.Y2_axis_checkbox.stateChanged.connect(self.Y2_checkbox_state_changed)
-        self.Y2_combo.currentIndexChanged.connect(self.update_Y1)
+        self.Y2_combo.currentIndexChanged.connect(self.update_Y2)
         self.X_combo.currentIndexChanged.connect(self.update_X)
 
         self.start_button.clicked.connect(self.start)
@@ -331,35 +344,27 @@ class MainWindow(QMainWindow):
             widget.setChecked(True)
             widget.stateChanged.connect(self.update_columns)
 
-    def update_Y2(self):
-        """
-        Update the Y2 axis
-        """
-        if self.Y1_combo.currentText() == "Id":
-            self.Y2_combo.setCurrentText("Ig")
-        else:
-            self.Y2_combo.setCurrentText("Id")
-
-        self.cfg["Y1"]["axis"] = self.Y1_combo.currentText()
-        self.cfg["Y1"]["unit"] = "A"
-        self.cfg["Y2"]["axis"] = self.Y2_combo.currentText()
-        self.cfg["Y2"]["unit"] = "A"
-
-        self.set_config(self.cfg)
-
     def update_Y1(self):
         """
         Update the Y1 axis
         """
-        if self.Y2_combo.currentText() == "Id":
-            self.Y1_combo.setCurrentText("Ig")
-        else:
-            self.Y1_combo.setCurrentText("Id")
-
         self.cfg["Y1"]["axis"] = self.Y1_combo.currentText()
         self.cfg["Y1"]["unit"] = "A"
+        self.Y2_combo.setCurrentText(
+            "Ig" if self.Y1_combo.currentText() == "Id" else "Id"
+        )
+
+        self.set_config(self.cfg)
+
+    def update_Y2(self):
+        """
+        Update the Y2 axis
+        """
         self.cfg["Y2"]["axis"] = self.Y2_combo.currentText()
         self.cfg["Y2"]["unit"] = "A"
+        self.Y1_combo.setCurrentText(
+            "Ig" if self.Y2_combo.currentText() == "Id" else "Id"
+        )
 
         self.set_config(self.cfg)
 
@@ -429,15 +434,21 @@ class MainWindow(QMainWindow):
         """
         Set the configuration
         """
+        try:
+            with open("config.json", "w") as f:
+                json.dump(self.configs, f)
+        except FileNotFoundError:
+            pass
+
         self.Vg_mode_combo.setCurrentText(cfg["Vg"]["mode"])
-        self.Vg_bidirectional_checkbox.setChecked(cfg["Vg"]["bidirectional"])
+        self.Vg_bidirectional_checkbox.setChecked(cfg["Vg"]["sweep"]["bidirectional"])
         self.Vg_spin.setValue(cfg["Vg"]["fixed"]["value"])
         self.Vg_start_spin.setValue(cfg["Vg"]["sweep"]["start"])
         self.Vg_stop_spin.setValue(cfg["Vg"]["sweep"]["stop"])
         self.Vg_step_spin.setValue(cfg["Vg"]["sweep"]["steps"])
 
         self.Vd_mode_combo.setCurrentText(cfg["Vd"]["mode"])
-        self.Vd_bidirectional_checkbox.setChecked(cfg["Vd"]["bidirectional"])
+        self.Vd_bidirectional_checkbox.setChecked(cfg["Vd"]["sweep"]["bidirectional"])
         self.Vd_spin.setValue(cfg["Vd"]["fixed"]["value"])
         self.Vd_start_spin.setValue(cfg["Vd"]["sweep"]["start"])
         self.Vd_stop_spin.setValue(cfg["Vd"]["sweep"]["stop"])
@@ -541,7 +552,16 @@ class MainWindow(QMainWindow):
         Update the configuration
         """
         mode = self.config_combo.currentText()
-        self.cfg = copy.deepcopy(CONFIGS[mode])
+        self.cfg = self.configs[mode]
+        self.set_config(self.cfg)
+
+    def restore_config(self):
+        """
+        Restore the configuration
+        """
+        self.configs = copy.deepcopy(CONFIGS)
+        self.cfg = self.configs[self.mode]
+        self.config_combo.setCurrentText(self.mode)
         self.set_config(self.cfg)
 
     def update_Vg_mode(self):
