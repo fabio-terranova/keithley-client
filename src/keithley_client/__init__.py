@@ -5,17 +5,30 @@ Keithley SMU client
 """
 
 import argparse
+import os
+
 import pyqtgraph as pg
-
-from PyQt5.QtWidgets import QApplication
+import json
+from platformdirs import user_data_dir
 from PyQt5.QtGui import QFont
+from PyQt5.QtWidgets import QApplication
 
+from .config import CONFIGS
 from .gui.MainWindow import MainWindow
 
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 __author__ = "Fabio T"
 
 win_title = f"Keithley SMU client {__version__} - {__author__}"
+
+# Create the data directory
+user_dir = user_data_dir(appname="keithley_client", appauthor=False)
+
+if not os.path.exists(user_dir):
+    os.makedirs(user_dir)
+
+with open(os.path.join(user_dir, "default.json"), "w") as f:
+    json.dump(CONFIGS, f, indent=4)
 
 
 def config_pyqtgraph():

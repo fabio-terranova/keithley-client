@@ -4,13 +4,14 @@ build-backend = "hatchling.build"
 
 [project]
 name = "keithley_client"
-version = "0.2.0"
+version = "0.2.1"
 description = "A client for the Keithley SourceMeter"
 authors = [{ name = "Fabio Terranova" }]
 license = { file = "LICENSE" }
 readme = "README.md"
 dependencies = [
 	"argparse",
+	"platformdirs",
 	"numpy",
 	"pandas",
 	"pyqt5",
