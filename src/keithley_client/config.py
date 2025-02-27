@@ -30,7 +30,13 @@ CONFIGS = {
             "axis": "Vd",
             "unit": "V",
         },
-        "saving": ["Vg", "Vd", "Id", "Ig"],
+        "saving": {
+            "Time": False,
+            "Vg": True,
+            "Vd": True,
+            "Id": True,
+            "Ig": True,
+        },
     },
     "Id-Vg": {
         "Vg": {
@@ -57,7 +63,13 @@ CONFIGS = {
             "axis": "Vg",
             "unit": "V",
         },
-        "saving": ["Vg", "Vd", "Id", "Ig"],
+        "saving": {
+            "Time": False,
+            "Vg": True,
+            "Vd": True,
+            "Id": True,
+            "Ig": True,
+        },
     },
     "Time": {
         "Vg": {
@@ -84,6 +96,12 @@ CONFIGS = {
             "axis": "Time",
             "unit": "s",
         },
-        "saving": ["Time", "Vg", "Vd", "Id", "Ig"],
+        "saving": {
+            "Time": True,
+            "Vg": True,
+            "Vd": True,
+            "Id": True,
+            "Ig": True,
+        },
     },
 }

@@ -522,11 +522,11 @@ class MainWindow(QMainWindow):
         self.Y2_combo.setEnabled(cfg["Y2"]["enabled"])
         self.X_combo.setCurrentText(cfg["X"]["axis"])
 
-        self.column_time_checkbox.setChecked("Time" in cfg["saving"])
-        self.column_Vg_checkbox.setChecked("Vg" in cfg["saving"])
-        self.column_Vd_checkbox.setChecked("Vd" in cfg["saving"])
-        self.column_Id_checkbox.setChecked("Id" in cfg["saving"])
-        self.column_Ig_checkbox.setChecked("Ig" in cfg["saving"])
+        self.column_time_checkbox.setChecked(cfg["saving"]["Time"])
+        self.column_Vg_checkbox.setChecked(cfg["saving"]["Vg"])
+        self.column_Vd_checkbox.setChecked(cfg["saving"]["Vd"])
+        self.column_Id_checkbox.setChecked(cfg["saving"]["Id"])
+        self.column_Ig_checkbox.setChecked(cfg["saving"]["Ig"])
 
         if cfg["Vd"]["mode"] == "Sweep":
             for widget in [
