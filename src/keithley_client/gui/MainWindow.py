@@ -395,7 +395,11 @@ class MainWindow(QMainWindow):
             lambda: self.update_config("saving.Ig", self.column_Ig_checkbox.isChecked())
         )
 
+        self.Vd_start_spin.valueChanged.connect(self.update_Vd_step)
+        self.Vd_stop_spin.valueChanged.connect(self.update_Vd_step)
         self.Vd_step_spin.valueChanged.connect(self.update_Vd_step)
+        self.Vg_start_spin.valueChanged.connect(self.update_Vg_step)
+        self.Vg_stop_spin.valueChanged.connect(self.update_Vg_step)
         self.Vg_step_spin.valueChanged.connect(self.update_Vg_step)
 
     def update_mode(self):
@@ -499,7 +503,7 @@ class MainWindow(QMainWindow):
         if self.Vd_step_spin.value() == 1:
             text = "Step value: error"
         else:
-            text = f"Step value: {(self.Vd_stop_spin.value() - self.Vd_start_spin.value()) / (self.Vd_step_spin.value() - 1):.2f} V"
+            text = f"Step value: {(self.Vd_stop_spin.value() - self.Vd_start_spin.value()) / (self.Vd_step_spin.value() - 1):.3f} V"
 
         self.Vd_step_value.setText(text)
 
@@ -510,7 +514,7 @@ class MainWindow(QMainWindow):
         if self.Vg_step_spin.value() == 1:
             text = "Step value: error"
         else:
-            text = f"Step value: {(self.Vg_stop_spin.value() - self.Vg_start_spin.value()) / (self.Vg_step_spin.value() - 1):.2f} V"
+            text = f"Step value: {(self.Vg_stop_spin.value() - self.Vg_start_spin.value()) / (self.Vg_step_spin.value() - 1):.3f} V"
 
         self.Vg_step_value.setText(text)
 
