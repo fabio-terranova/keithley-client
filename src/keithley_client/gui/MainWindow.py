@@ -551,8 +551,8 @@ class MainWindow(QMainWindow):
         """
         Update the configuration
         """
-        mode = self.config_combo.currentText()
-        self.cfg = self.configs[mode]
+        self.mode = self.config_combo.currentText()
+        self.cfg = self.configs[self.mode]
         self.set_config(self.cfg)
 
     def restore_config(self):
@@ -560,7 +560,7 @@ class MainWindow(QMainWindow):
         Restore the configuration
         """
         self.configs = copy.deepcopy(CONFIGS)
-        self.cfg = self.configs[self.mode]
+        self.cfg = copy.deepcopy(CONFIGS[self.mode])
         self.config_combo.setCurrentText(self.mode)
         self.set_config(self.cfg)
 

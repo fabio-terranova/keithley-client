@@ -12,7 +12,7 @@ from PyQt5.QtGui import QFont
 
 from .gui.MainWindow import MainWindow
 
-__version__ = "0.1.5"
+__version__ = "0.2.0"
 __author__ = "Fabio T"
 
 win_title = f"Keithley SMU client {__version__} - {__author__}"
