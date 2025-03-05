@@ -1,21 +1,18 @@
 # Keithley SMU Client
 
-A Python-based graphical interface for controlling Keithley SourceMeter 2612B. This application provides a user-friendly way to perform common semiconductor measurements including Id-Vd, Id-Vg, and time-based measurements.
+A Python-based graphical interface for controlling Keithley SourceMeter 2612B.
 
 ## Features
 
 - Three measurement modes:
   - Output characteristics (Id-Vd)
   - Transfer characteristics (Id-Vg)
-  - Time-based measurements
-- Real-time plotting
-- Data export functionality
+  - Time-response measurements
 - Configurable measurement parameters
-- GPIB communication support
 
 ## Requirements
 
-- Python 3.7+
+- Python
 - PyQt5
 - pyqtgraph
 - numpy
@@ -47,7 +44,7 @@ keithley_client
 
 - `--idvd` : Start in Id-Vd measurement mode
 - `--idvg` : Start in Id-Vg measurement mode
-- `--time` : Start in time measurement mode
+- `--time` : Start in time response measurement mode
 - `--dummy`: Use dummy mode for testing without hardware
 - `--font-size N` : Set GUI font size (default: 8)
 - `--version` : Show version information
@@ -56,16 +53,3 @@ keithley_client
 ## Configuration
 
 The application can be configured by editing the `config.py` file:
-
-### Default configurations available:
-- Id-Vd measurements
-- Id-Vg measurements
-- Time-based measurements
-
-Each configuration includes:
-- Voltage sweep ranges
-- Step sizes
-
-## License
-
-MIT License - See LICENSE file for details
