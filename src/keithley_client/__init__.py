@@ -7,6 +7,7 @@ Keithley SMU client
 import argparse
 import os
 
+import PyQt5
 import pyqtgraph as pg
 import json
 from platformdirs import user_data_dir
@@ -18,6 +19,7 @@ from .gui.MainWindow import MainWindow
 
 __version__ = "0.2.5"
 __author__ = "Fabio T"
+__all__ = ["PyQt5"]
 
 win_title = f"Keithley SMU client {__version__} - {__author__}"
 
