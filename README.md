@@ -45,6 +45,7 @@ keithley_client
 - `--idvd` : Start in Id-Vd measurement mode
 - `--idvg` : Start in Id-Vg measurement mode
 - `--time` : Start in time response measurement mode
+- `--pulse` : Start in time (pulse) measurement mode
 - `--dummy`: Use dummy mode for testing without hardware
 - `--font-size N` : Set GUI font size (default: 8)
 - `--version` : Show version information
