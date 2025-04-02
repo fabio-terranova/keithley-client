@@ -11,6 +11,7 @@ from .keithley_dummy import KeithleyDummy
 
 class Recorder(QThread):
     data_ready = pyqtSignal()
+    data_ended = pyqtSignal()
 
     def __init__(self, keithley_address, dummy=False):
         super().__init__()
@@ -80,6 +81,8 @@ class Recorder(QThread):
             self.id.append(self.keithley.measure_i("a"))
             self.ig.append(self.keithley.measure_i("b"))
             self.data_ready.emit()
+
+        self.data_ended.emit()
 
     def stop(self):
         self.recording = False
