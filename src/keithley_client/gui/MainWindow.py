@@ -539,6 +539,11 @@ class MainWindow(QMainWindow):
         if path == "X.axis":
             cfg["X"]["unit"] = "V" if value != "Time" else "s"
 
+        if path == "Y1.axis":
+            cfg["Y1"]["unit"] = "A" if value in ["Id", "Ig"] else "V"
+        if path == "Y2.axis":
+            cfg["Y2"]["unit"] = "A" if value in ["Id", "Ig"] else "V"
+
         # # Automatically update Y2 axis based on Y1
         # if path == "Y1.axis":
         #     if value == "Id":
