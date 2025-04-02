@@ -130,6 +130,7 @@ class Recorder(QThread):
 
     def stop(self):
         self.recording = False
+        time.sleep(0.1)
         self.keithley.turn_output_off("b")
         self.keithley.turn_output_off("a")
 
