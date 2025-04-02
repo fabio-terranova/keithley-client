@@ -32,7 +32,7 @@ class KeithleyDummy:
     def set_current_limit(self, smu, current):
         pass
 
-    def turn_ouput_on(self, smu):
+    def turn_output_on(self, smu):
         self.output_state[smu] = True
 
     def turn_output_off(self, smu):
