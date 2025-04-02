@@ -37,8 +37,8 @@ class Recorder(QThread):
         self.keithley.reset()
 
         # start the measurement
-        self.keithley.turn_ouput_on("b")
-        self.keithley.turn_ouput_on("a")
+        self.keithley.turn_output_on("b")
+        self.keithley.turn_output_on("a")
 
         self.points = points
         self.delay = delay
