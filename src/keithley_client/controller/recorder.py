@@ -27,20 +27,27 @@ class Recorder(QThread):
         self.vg = deque()
         self.time = deque()
         self.recording = False
+        self.pulse_info = [{"enabled": False}, {"enabled": False}]
 
     def set_points(self, points):
         self.points = points
 
-    def start(self, points, delay=1):
+    def start(self, points, delay=1, pulse_info=None):
         # reset the keithley
         self.keithley.reset()
 
-        # start the measurementù
+        # start the measurement
         self.keithley.turn_ouput_on("b")
         self.keithley.turn_ouput_on("a")
 
         self.points = points
         self.delay = delay
+
+        # Handle pulse information
+        if pulse_info is not None:
+            self.pulse_info = pulse_info
+        else:
+            self.pulse_info = [{"enabled": False}, {"enabled": False}]
 
         self.recording = True
         self.process = QThread()
@@ -56,9 +63,59 @@ class Recorder(QThread):
 
         start_time = time.time()
 
+        # For continuous measurement mode (single point)
         if len(self.points) == 1:
+            [vg_base, vd_base] = self.points[0]
+
+            # Calculate pulse parameters
+            vg_pulse_enabled = self.pulse_info[0].get("enabled", False)
+            vd_pulse_enabled = self.pulse_info[1].get("enabled", False)
+
+            # Extract pulse parameters for Vg
+            if vg_pulse_enabled:
+                vg_delta = self.pulse_info[0]["delta"]
+                vg_period = self.pulse_info[0]["period"]
+                vg_duty = self.pulse_info[0]["duty"]
+
+            if vd_pulse_enabled:
+                vd_delta = self.pulse_info[1]["delta"]
+                vd_period = self.pulse_info[1]["period"]
+                vd_duty = self.pulse_info[1]["duty"]
+
             while self.recording:
-                [vg, vd] = self.points[0]
+                current_time = time.time() - start_time
+
+                # Calculate pulse voltage values
+                vg = vg_base
+                vd = vd_base
+
+                if vg_pulse_enabled:
+                    vg_pos = (current_time % vg_period) / vg_period
+                    if vg_pos >= (1 - vg_duty / 100):
+                        vg = vg_base + vg_delta
+
+                if vd_pulse_enabled:
+                    vd_pos = (current_time % vd_period) / vd_period
+                    if vd_pos >= (1 - vd_duty / 100):
+                        vd = vd_base + vd_delta
+
+                # Set voltages
+                self.keithley.set_voltage_source("a", vd)
+                self.keithley.set_voltage_source("b", vg)
+                time.sleep(self.delay)
+
+                # Measure and store data
+                self.time.append(current_time)
+                self.vg.append(vg)
+                self.vd.append(vd)
+                self.id.append(self.keithley.measure_i("a"))
+                self.ig.append(self.keithley.measure_i("b"))
+                self.data_ready.emit()
+        else:
+            # Standard sweep measurement
+            for [vg, vd] in self.points:
+                if not self.recording:
+                    break
                 self.keithley.set_voltage_source("a", vd)
                 self.keithley.set_voltage_source("b", vg)
                 time.sleep(self.delay)
@@ -68,19 +125,6 @@ class Recorder(QThread):
                 self.id.append(self.keithley.measure_i("a"))
                 self.ig.append(self.keithley.measure_i("b"))
                 self.data_ready.emit()
-
-        for [vg, vd] in self.points:
-            if not self.recording:
-                break
-            self.keithley.set_voltage_source("a", vd)
-            self.keithley.set_voltage_source("b", vg)
-            time.sleep(self.delay)
-            self.time.append(time.time() - start_time)
-            self.vg.append(vg)
-            self.vd.append(vd)
-            self.id.append(self.keithley.measure_i("a"))
-            self.ig.append(self.keithley.measure_i("b"))
-            self.data_ready.emit()
 
         self.data_ended.emit()
 

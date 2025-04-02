@@ -74,12 +74,57 @@ CONFIGS = {
     "Time": {
         "Vg": {
             "mode": "Fixed",
-            "fixed": {"value": -6},
+            "fixed": {
+                "value": -6,
+                "pulse": {"enabled": False, "delta": 1.0, "period": 1.0, "duty": 50.0},
+            },
             "sweep": {"start": 2, "stop": -6, "steps": 51, "bidirectional": False},
         },
         "Vd": {
             "mode": "Fixed",
-            "fixed": {"value": -7},
+            "fixed": {
+                "value": -7,
+                "pulse": {"enabled": False, "delta": 1.0, "period": 1.0, "duty": 50.0},
+            },
+            "sweep": {"start": 0, "stop": -6, "steps": 51, "bidirectional": False},
+        },
+        "Y1": {
+            "enabled": True,
+            "axis": "Id",
+            "unit": "A",
+        },
+        "Y2": {
+            "enabled": True,
+            "axis": "Ig",
+            "unit": "A",
+        },
+        "X": {
+            "axis": "Time",
+            "unit": "s",
+        },
+        "saving": {
+            "Time": True,
+            "Vg": True,
+            "Vd": True,
+            "Id": True,
+            "Ig": True,
+        },
+    },
+    "Time (pulse)": {
+        "Vg": {
+            "mode": "Fixed",
+            "fixed": {
+                "value": -6,
+                "pulse": {"enabled": True, "delta": 1.0, "period": 1.0, "duty": 50.0},
+            },
+            "sweep": {"start": 2, "stop": -6, "steps": 51, "bidirectional": False},
+        },
+        "Vd": {
+            "mode": "Fixed",
+            "fixed": {
+                "value": -7,
+                "pulse": {"enabled": False, "delta": 1.0, "period": 1.0, "duty": 50.0},
+            },
             "sweep": {"start": 0, "stop": -6, "steps": 51, "bidirectional": False},
         },
         "Y1": {
