@@ -27,6 +27,19 @@ from ..utils import float_to_eng_string
 user_dir = user_data_dir(appname="keithley_client", appauthor=False)
 
 
+def check_config(config, default_config=CONFIGS):
+    """
+    Check the configuration and add missing keys with default values
+    """
+    for key, value in default_config.items():
+        if key not in config:
+            config[key] = value
+            print(f"Adding missing key: {key} with default value: {value}")
+        elif isinstance(value, dict):
+            check_config(config[key], value)
+    return config
+
+
 class MainWindow(QMainWindow):
     """
     Main window
@@ -41,8 +54,11 @@ class MainWindow(QMainWindow):
             with open(os.path.join(user_dir, "user.json"), "r") as f:
                 self.configs = json.load(f)
                 print(
-                    f"Loading configuration from {os.path.join(user_dir, 'user.json')}"
+                    f"Loading configuration from {os.path.join(user_dir, 'user.json')}... ",
+                    end="",
                 )
+                self.configs = check_config(self.configs)
+                print("OK!")
         except FileNotFoundError:
             print("No user configuration found, loading default configuration")
             try:
