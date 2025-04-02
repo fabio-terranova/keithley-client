@@ -8,12 +8,18 @@ CONFIGS = {
     "Id-Vd": {
         "Vg": {
             "mode": "Sweep",
-            "fixed": {"value": -6},
+            "fixed": {
+                "value": -6,
+                "pulse": {"enabled": False, "delta": 1.0, "period": 1.0, "duty": 50.0},
+            },
             "sweep": {"start": 2, "stop": -6, "steps": 5, "bidirectional": False},
         },
         "Vd": {
             "mode": "Sweep",
-            "fixed": {"value": 0},
+            "fixed": {
+                "value": 0,
+                "pulse": {"enabled": False, "delta": 1.0, "period": 1.0, "duty": 50.0},
+            },
             "sweep": {"start": 0, "stop": -6, "steps": 51, "bidirectional": False},
         },
         "Y1": {
@@ -41,12 +47,18 @@ CONFIGS = {
     "Id-Vg": {
         "Vg": {
             "mode": "Sweep",
-            "fixed": {"value": -6},
+            "fixed": {
+                "value": -6,
+                "pulse": {"enabled": False, "delta": 1.0, "period": 1.0, "duty": 50.0},
+            },
             "sweep": {"start": 2, "stop": -6, "steps": 51, "bidirectional": True},
         },
         "Vd": {
             "mode": "Fixed",
-            "fixed": {"value": -7},
+            "fixed": {
+                "value": -7,
+                "pulse": {"enabled": False, "delta": 1.0, "period": 1.0, "duty": 50.0},
+            },
             "sweep": {"start": 0, "stop": -6, "steps": 51, "bidirectional": False},
         },
         "Y1": {
@@ -134,8 +146,8 @@ CONFIGS = {
         },
         "Y2": {
             "enabled": True,
-            "axis": "Ig",
-            "unit": "A",
+            "axis": "Vg",
+            "unit": "V",
         },
         "X": {
             "axis": "Time",

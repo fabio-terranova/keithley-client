@@ -61,6 +61,8 @@ def cli():
 
     `--time`: show the time response interface
 
+    `--pulse`: show the pulse response interface
+
     `--dummy`: use a dummy Keithley class to test the application
 
     `--font-size`: set the font size of the application
@@ -77,6 +79,9 @@ def cli():
     )
     parser.add_argument(
         "--time", action="store_true", help="show the time response interface"
+    )
+    parser.add_argument(
+        "--pulse", action="store_true", help="show the pulse response interface"
     )
     parser.add_argument(
         "--dummy",
@@ -108,6 +113,8 @@ def cli():
         mode = "Id-Vd"
     elif args.time:
         mode = "Time"
+    elif args.pulse:
+        mode = "Time (pulse)"
     else:
         mode = "Id-Vd"
 

@@ -114,14 +114,12 @@ class MainWindow(QMainWindow):
         self.Vg_pulse_period_spin.setDecimals(2)
         self.Vg_pulse_period_spin.setRange(0.01, 10)
         self.Vg_pulse_period_spin.setSingleStep(0.1)
-        self.Vg_pulse_period_spin.setValue(1)
 
         self.Vg_pulse_duty_label = QLabel("Duty Cycle (%)")
         self.Vg_pulse_duty_spin = QDoubleSpinBox()
         self.Vg_pulse_duty_spin.setDecimals(1)
         self.Vg_pulse_duty_spin.setRange(0.1, 99.9)
         self.Vg_pulse_duty_spin.setSingleStep(5)
-        self.Vg_pulse_duty_spin.setValue(50)
 
         self.Vg_start_label = QLabel("Start value (V)")
         self.Vg_start_spin = QDoubleSpinBox()
@@ -253,12 +251,16 @@ class MainWindow(QMainWindow):
         self.Y1_combo = QComboBox()
         self.Y1_combo.addItem("Id")
         self.Y1_combo.addItem("Ig")
+        self.Y1_combo.addItem("Vd")
+        self.Y1_combo.addItem("Vg")
 
         self.Y2_axis_checkbox = QCheckBox("Y2 axis")
         self.Y2_axis_checkbox.setChecked(True)
         self.Y2_combo = QComboBox()
         self.Y2_combo.addItem("Ig")
         self.Y2_combo.addItem("Id")
+        self.Y2_combo.addItem("Vd")
+        self.Y2_combo.addItem("Vg")
 
         self.X_label = QLabel("X axis")
         self.X_combo = QComboBox()
@@ -537,17 +539,17 @@ class MainWindow(QMainWindow):
         if path == "X.axis":
             cfg["X"]["unit"] = "V" if value != "Time" else "s"
 
-        # Automatically update Y2 axis based on Y1
-        if path == "Y1.axis":
-            if value == "Id":
-                self.configs[self.mode]["Y2"]["axis"] = "Ig"
-            else:
-                self.configs[self.mode]["Y2"]["axis"] = "Id"
-        if path == "Y2.axis":
-            if value == "Id":
-                self.configs[self.mode]["Y1"]["axis"] = "Ig"
-            else:
-                self.configs[self.mode]["Y1"]["axis"] = "Id"
+        # # Automatically update Y2 axis based on Y1
+        # if path == "Y1.axis":
+        #     if value == "Id":
+        #         self.configs[self.mode]["Y2"]["axis"] = "Ig"
+        #     else:
+        #         self.configs[self.mode]["Y2"]["axis"] = "Id"
+        # if path == "Y2.axis":
+        #     if value == "Id":
+        #         self.configs[self.mode]["Y1"]["axis"] = "Ig"
+        #     else:
+        #         self.configs[self.mode]["Y1"]["axis"] = "Id"
 
         # Update plot labels and visibility
         self.plot_items[0].setLabel("bottom", cfg["X"]["axis"], units=cfg["X"]["unit"])
@@ -895,16 +897,23 @@ class MainWindow(QMainWindow):
         else:
             x = self.recorder.vd
 
-        y1 = (
-            self.recorder.id
-            if self.configs[self.mode]["Y1"]["axis"] == "Id"
-            else self.recorder.ig
-        )
-        y2 = (
-            self.recorder.ig
-            if self.configs[self.mode]["Y2"]["axis"] == "Ig"
-            else self.recorder.id
-        )
+        if self.configs[self.mode]["Y1"]["axis"] == "Id":
+            y1 = self.recorder.id
+        elif self.configs[self.mode]["Y1"]["axis"] == "Ig":
+            y1 = self.recorder.ig
+        elif self.configs[self.mode]["Y1"]["axis"] == "Vd":
+            y1 = self.recorder.vd
+        else:
+            y1 = self.recorder.vg
+
+        if self.configs[self.mode]["Y2"]["axis"] == "Id":
+            y2 = self.recorder.id
+        elif self.configs[self.mode]["Y2"]["axis"] == "Ig":
+            y2 = self.recorder.ig
+        elif self.configs[self.mode]["Y2"]["axis"] == "Vd":
+            y2 = self.recorder.vd
+        else:
+            y2 = self.recorder.vg
 
         self.curves[0].setData(x, y1)
         self.curves[1].setData(x, y2)
