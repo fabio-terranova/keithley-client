@@ -5,11 +5,11 @@ Keithley SMU client
 """
 
 import argparse
+import json
 import os
 
 import PyQt5
 import pyqtgraph as pg
-import json
 from platformdirs import user_data_dir
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QApplication
