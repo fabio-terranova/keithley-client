@@ -17,7 +17,7 @@ from PyQt5.QtWidgets import QApplication
 from .config import CONFIGS
 from .gui.MainWindow import MainWindow
 
-__version__ = "0.3.0"
+__version__ = "0.3.1"
 __author__ = "Fabio T"
 __all__ = ["PyQt5"]
 
