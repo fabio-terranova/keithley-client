@@ -833,6 +833,7 @@ class MainWindow(QMainWindow):
             )
 
         self.set_config(self.configs[self.mode])
+        self.info_label.setText("Configuration restored")
 
     def start(self):
         """
@@ -891,6 +892,8 @@ class MainWindow(QMainWindow):
         # Pass pulse information to the recorder
         self.recorder.start(self.points, self.delay_spin.value(), pulse_info)
 
+        self.info_label.setText("Measurement started")
+
     def stop(self):
         """
         Stop the measurement
@@ -900,6 +903,8 @@ class MainWindow(QMainWindow):
         self.voltage_group.setEnabled(True)
         self.start_button.setEnabled(True)
         self.stop_button.setEnabled(False)
+
+        self.info_label.setText("Measurement stopped")
 
     def update_plots(self):
         """
