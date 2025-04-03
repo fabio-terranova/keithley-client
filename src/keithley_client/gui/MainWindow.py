@@ -127,9 +127,9 @@ class MainWindow(QMainWindow):
 
         self.Vg_pulse_period_label = QLabel("Period (s)")
         self.Vg_pulse_period_spin = QDoubleSpinBox()
-        self.Vg_pulse_period_spin.setDecimals(2)
-        self.Vg_pulse_period_spin.setRange(0.01, 10)
-        self.Vg_pulse_period_spin.setSingleStep(0.1)
+        self.Vg_pulse_period_spin.setDecimals(3)
+        self.Vg_pulse_period_spin.setRange(0.001, 10)
+        self.Vg_pulse_period_spin.setSingleStep(0.01)
 
         self.Vg_pulse_duty_label = QLabel("Duty Cycle (%)")
         self.Vg_pulse_duty_spin = QDoubleSpinBox()
