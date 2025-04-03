@@ -31,7 +31,7 @@ class Keithley:
     def set_current_limit(self, smu, current):
         self.instrument.write(f"smu{smu}.source.limiti = {current}")
 
-    def turn_ouput_on(self, smu):
+    def turn_output_on(self, smu):
         self.instrument.write(f"smu{smu}.source.output = smu{smu}.OUTPUT_ON")
 
     def turn_output_off(self, smu):
