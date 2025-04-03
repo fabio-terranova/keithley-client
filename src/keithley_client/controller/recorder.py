@@ -4,6 +4,7 @@ import time
 from PyQt5.QtCore import QThread, pyqtSignal
 
 from collections import deque
+from threading import Thread
 
 from .keithley import Keithley
 from .keithley_dummy import KeithleyDummy
@@ -63,7 +64,15 @@ class Recorder(QThread):
 
         start_time = time.time()
 
-        # For continuous measurement mode (single point)
+        def measure():
+            while self.recording:
+                current_time = time.time() - start_time
+                self.time.append(current_time)
+                self.id.append(self.keithley.measure_i("a"))
+                self.ig.append(self.keithley.measure_i("b"))
+                self.data_ready.emit()
+                time.sleep(self.delay)
+
         if len(self.points) == 1:
             [vg_base, vd_base] = self.points[0]
 
@@ -82,35 +91,37 @@ class Recorder(QThread):
                 vd_period = self.pulse_info[1]["period"]
                 vd_duty = self.pulse_info[1]["duty"]
 
-            while self.recording:
-                current_time = time.time() - start_time
+            def set_voltages():
+                while self.recording:
+                    current_time = time.time() - start_time
+                    vg = vg_base
+                    vd = vd_base
 
-                # Calculate pulse voltage values
-                vg = vg_base
-                vd = vd_base
+                    if vg_pulse_enabled:
+                        vg_pos = (current_time % vg_period) / vg_period
+                        if vg_pos >= (1 - vg_duty / 100):
+                            vg = vg_base + vg_delta
 
-                if vg_pulse_enabled:
-                    vg_pos = (current_time % vg_period) / vg_period
-                    if vg_pos >= (1 - vg_duty / 100):
-                        vg = vg_base + vg_delta
+                    if vd_pulse_enabled:
+                        vd_pos = (current_time % vd_period) / vd_period
+                        if vd_pos >= (1 - vd_duty / 100):
+                            vd = vd_base + vd_delta
 
-                if vd_pulse_enabled:
-                    vd_pos = (current_time % vd_period) / vd_period
-                    if vd_pos >= (1 - vd_duty / 100):
-                        vd = vd_base + vd_delta
+                    self.keithley.set_voltage_source("a", vd)
+                    self.keithley.set_voltage_source("b", vg)
+                    self.vg.append(vg)
+                    self.vd.append(vd)
+                    time.sleep(self.delay)
 
-                # Set voltages
-                self.keithley.set_voltage_source("a", vd)
-                self.keithley.set_voltage_source("b", vg)
-                time.sleep(self.delay)
+            voltage_thread = Thread(target=set_voltages)
+            voltage_thread.start()
 
-                # Measure and store data
-                self.time.append(current_time)
-                self.vg.append(vg)
-                self.vd.append(vd)
-                self.id.append(self.keithley.measure_i("a"))
-                self.ig.append(self.keithley.measure_i("b"))
-                self.data_ready.emit()
+            measure_thread = Thread(target=measure)
+            measure_thread.start()
+
+            voltage_thread.join()
+            measure_thread.join()
+
         else:
             # Standard sweep measurement
             for [vg, vd] in self.points:
