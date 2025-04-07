@@ -53,4 +53,25 @@ keithley_client
 
 ## Configuration
 
-The application can be configured by editing the `config.py` file:
+The application uses configuration files to store measurement settings:
+
+- Default settings are defined in the source code
+- User settings are saved in the user data directory
+- Settings are saved per measurement mode (Id-Vd, Id-Vg, Time, Time pulse)
+
+### Configuration Options
+
+Each measurement mode can be configured with:
+
+- Gate and drain voltage parameters
+  - Fixed or sweep mode
+  - Start/stop values and number of steps
+  - Bidirectional sweeps
+  - Pulse parameters (delta voltage and delay)
+- Measurement settings
+  - Sampling period
+  - Number of averaged points per measurement
+  - Plot axes configuration
+- Data saving options
+
+Settings are automatically saved when changed in the GUI and persist between sessions.

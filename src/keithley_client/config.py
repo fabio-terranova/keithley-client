@@ -10,7 +10,7 @@ CONFIGS = {
             "mode": "Sweep",
             "fixed": {
                 "value": -6,
-                "pulse": {"enabled": False, "delta": 1.0, "period": 1.0, "duty": 50.0},
+                "pulse": {"enabled": False, "delta": 1.0, "delay": 1.0},
             },
             "sweep": {"start": 2, "stop": -6, "steps": 5, "bidirectional": False},
         },
@@ -18,7 +18,7 @@ CONFIGS = {
             "mode": "Sweep",
             "fixed": {
                 "value": 0,
-                "pulse": {"enabled": False, "delta": 1.0, "period": 1.0, "duty": 50.0},
+                "pulse": {"enabled": False, "delta": 1.0, "delay": 1.0},
             },
             "sweep": {"start": 0, "stop": -6, "steps": 51, "bidirectional": False},
         },
@@ -43,13 +43,15 @@ CONFIGS = {
             "Id": True,
             "Ig": True,
         },
+        "period": 0.100,
+        "n_points": 1,
     },
     "Id-Vg": {
         "Vg": {
             "mode": "Sweep",
             "fixed": {
                 "value": -6,
-                "pulse": {"enabled": False, "delta": 1.0, "period": 1.0, "duty": 50.0},
+                "pulse": {"enabled": False, "delta": 1.0, "delay": 1.0},
             },
             "sweep": {"start": 2, "stop": -6, "steps": 51, "bidirectional": True},
         },
@@ -57,7 +59,7 @@ CONFIGS = {
             "mode": "Fixed",
             "fixed": {
                 "value": -7,
-                "pulse": {"enabled": False, "delta": 1.0, "period": 1.0, "duty": 50.0},
+                "pulse": {"enabled": False, "delta": 1.0, "delay": 1.0},
             },
             "sweep": {"start": 0, "stop": -6, "steps": 51, "bidirectional": False},
         },
@@ -82,13 +84,15 @@ CONFIGS = {
             "Id": True,
             "Ig": True,
         },
+        "period": 0.100,
+        "n_points": 1,
     },
     "Time": {
         "Vg": {
             "mode": "Fixed",
             "fixed": {
                 "value": -6,
-                "pulse": {"enabled": False, "delta": 1.0, "period": 1.0, "duty": 50.0},
+                "pulse": {"enabled": False, "delta": 1.0, "delay": 1.0},
             },
             "sweep": {"start": 2, "stop": -6, "steps": 51, "bidirectional": False},
         },
@@ -96,7 +100,7 @@ CONFIGS = {
             "mode": "Fixed",
             "fixed": {
                 "value": -7,
-                "pulse": {"enabled": False, "delta": 1.0, "period": 1.0, "duty": 50.0},
+                "pulse": {"enabled": False, "delta": 1.0, "delay": 1.0},
             },
             "sweep": {"start": 0, "stop": -6, "steps": 51, "bidirectional": False},
         },
@@ -121,13 +125,15 @@ CONFIGS = {
             "Id": True,
             "Ig": True,
         },
+        "period": 0.100,
+        "n_points": 1,
     },
     "Time (pulse)": {
         "Vg": {
             "mode": "Fixed",
             "fixed": {
                 "value": -6,
-                "pulse": {"enabled": True, "delta": 1.0, "period": 1.0, "duty": 50.0},
+                "pulse": {"enabled": True, "delta": 1.0, "delay": 1.0},
             },
             "sweep": {"start": 2, "stop": -6, "steps": 51, "bidirectional": False},
         },
@@ -135,7 +141,7 @@ CONFIGS = {
             "mode": "Fixed",
             "fixed": {
                 "value": -7,
-                "pulse": {"enabled": False, "delta": 1.0, "period": 1.0, "duty": 50.0},
+                "pulse": {"enabled": False, "delta": 1.0, "delay": 1.0},
             },
             "sweep": {"start": 0, "stop": -6, "steps": 51, "bidirectional": False},
         },
@@ -160,5 +166,7 @@ CONFIGS = {
             "Id": True,
             "Ig": True,
         },
+        "period": 0.100,
+        "n_points": 1,
     },
 }
