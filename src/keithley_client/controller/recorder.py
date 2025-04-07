@@ -70,6 +70,8 @@ class Recorder(QThread):
                 self.time.append(current_time)
                 self.id.append(self.keithley.measure_i("a"))
                 self.ig.append(self.keithley.measure_i("b"))
+                self.vd.append(self.keithley.source_v_level("a"))
+                self.vg.append(self.keithley.source_v_level("b"))
                 self.data_ready.emit()
                 time.sleep(self.delay)
 
@@ -109,8 +111,8 @@ class Recorder(QThread):
 
                     self.keithley.set_voltage_source("a", vd)
                     self.keithley.set_voltage_source("b", vg)
-                    self.vg.append(vg)
-                    self.vd.append(vd)
+                    # self.vg.append(vg)
+                    # self.vd.append(vd)
                     time.sleep(self.delay)
 
             voltage_thread = Thread(target=set_voltages)
