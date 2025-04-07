@@ -6,11 +6,12 @@ class KeithleyDummy:
     Dummy Keithley class to simulate the Keithley SMU for testing purposes.
     """
 
-    def __init__(self, address):
+    def __init__(self, address, verbose=False):
         self.address = address
         self.output_state = {"a": False, "b": False}
         self.voltage = {"a": 0, "b": 0}
         self.current = {"a": 0, "b": 0}
+        self.verbose = verbose
 
     def reset(self):
         self.output_state = {"a": False, "b": False}
@@ -22,6 +23,8 @@ class KeithleyDummy:
 
     def set_voltage_source(self, smu, voltage):
         self.voltage[smu] = voltage
+        if self.verbose:
+            print(f"Set voltage for {smu} to {voltage} V")
 
     def set_current_source(self, smu, current):
         self.current[smu] = current
