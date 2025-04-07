@@ -30,11 +30,16 @@ user_dir = user_data_dir(appname="keithley_client", appauthor=False)
 def check_config(config, default_config=CONFIGS):
     """
     Check the configuration and add missing keys with default values
+    Remove keys that are not in the default configuration
     """
+    for key in list(config.keys()):
+        if key not in default_config:
+            del config[key]
+            print(f"-{key}", end=" ")
     for key, value in default_config.items():
         if key not in config:
             config[key] = value
-            print(f"Adding missing key: {key} with default value: {value}")
+            print(f"+{key}", end=" ")
         elif isinstance(value, dict):
             check_config(config[key], value)
     return config
@@ -125,17 +130,11 @@ class MainWindow(QMainWindow):
         self.Vg_pulse_delta_spin.setRange(-20, 20)
         self.Vg_pulse_delta_spin.setSingleStep(0.1)
 
-        self.Vg_pulse_period_label = QLabel("Period (s)")
-        self.Vg_pulse_period_spin = QDoubleSpinBox()
-        self.Vg_pulse_period_spin.setDecimals(3)
-        self.Vg_pulse_period_spin.setRange(0.001, 10)
-        self.Vg_pulse_period_spin.setSingleStep(0.01)
-
-        self.Vg_pulse_duty_label = QLabel("Duty Cycle (%)")
-        self.Vg_pulse_duty_spin = QDoubleSpinBox()
-        self.Vg_pulse_duty_spin.setDecimals(1)
-        self.Vg_pulse_duty_spin.setRange(0.1, 99.9)
-        self.Vg_pulse_duty_spin.setSingleStep(5)
+        self.Vg_pulse_delay_label = QLabel("Delay (s)")
+        self.Vg_pulse_delay_spin = QDoubleSpinBox()
+        self.Vg_pulse_delay_spin.setDecimals(2)
+        self.Vg_pulse_delay_spin.setRange(0.01, 10)
+        self.Vg_pulse_delay_spin.setSingleStep(0.01)
 
         self.Vg_start_label = QLabel("Start value (V)")
         self.Vg_start_spin = QDoubleSpinBox()
@@ -156,18 +155,15 @@ class MainWindow(QMainWindow):
         self.Vg_layout.addWidget(self.Vg_pulse_checkbox, 3, 0, 1, 2)
         self.Vg_layout.addWidget(self.Vg_pulse_delta_label, 4, 0)
         self.Vg_layout.addWidget(self.Vg_pulse_delta_spin, 4, 1)
-        self.Vg_layout.addWidget(self.Vg_pulse_period_label, 5, 0)
-        self.Vg_layout.addWidget(self.Vg_pulse_period_spin, 5, 1)
-        self.Vg_layout.addWidget(self.Vg_pulse_duty_label, 6, 0)
-        self.Vg_layout.addWidget(self.Vg_pulse_duty_spin, 6, 1)
-
-        self.Vg_layout.addWidget(self.Vg_start_label, 7, 0)
-        self.Vg_layout.addWidget(self.Vg_start_spin, 7, 1)
-        self.Vg_layout.addWidget(self.Vg_stop_label, 8, 0)
-        self.Vg_layout.addWidget(self.Vg_stop_spin, 8, 1)
-        self.Vg_layout.addWidget(self.Vg_step_label, 9, 0)
-        self.Vg_layout.addWidget(self.Vg_step_spin, 9, 1)
-        self.Vg_layout.addWidget(self.Vg_step_value, 10, 0, 1, 2)
+        self.Vg_layout.addWidget(self.Vg_pulse_delay_label, 5, 0)
+        self.Vg_layout.addWidget(self.Vg_pulse_delay_spin, 5, 1)
+        self.Vg_layout.addWidget(self.Vg_start_label, 6, 0)
+        self.Vg_layout.addWidget(self.Vg_start_spin, 6, 1)
+        self.Vg_layout.addWidget(self.Vg_stop_label, 7, 0)
+        self.Vg_layout.addWidget(self.Vg_stop_spin, 7, 1)
+        self.Vg_layout.addWidget(self.Vg_step_label, 8, 0)
+        self.Vg_layout.addWidget(self.Vg_step_spin, 8, 1)
+        self.Vg_layout.addWidget(self.Vg_step_value, 9, 0, 1, 2)
 
         self.Vd_group = QGroupBox("Vd")
         self.Vd_layout = QGridLayout()
@@ -191,17 +187,11 @@ class MainWindow(QMainWindow):
         self.Vd_pulse_delta_spin.setRange(-20, 20)
         self.Vd_pulse_delta_spin.setSingleStep(0.1)
 
-        self.Vd_pulse_period_label = QLabel("Period (s)")  # Changed from ms to s
-        self.Vd_pulse_period_spin = QDoubleSpinBox()
-        self.Vd_pulse_period_spin.setDecimals(2)
-        self.Vd_pulse_period_spin.setRange(0.01, 50)
-        self.Vd_pulse_period_spin.setSingleStep(0.1)
-
-        self.Vd_pulse_duty_label = QLabel("Duty Cycle (%)")
-        self.Vd_pulse_duty_spin = QDoubleSpinBox()
-        self.Vd_pulse_duty_spin.setDecimals(1)
-        self.Vd_pulse_duty_spin.setRange(0.1, 99.9)
-        self.Vd_pulse_duty_spin.setSingleStep(5)
+        self.Vd_pulse_delay_label = QLabel("Delay (s)")
+        self.Vd_pulse_delay_spin = QDoubleSpinBox()
+        self.Vd_pulse_delay_spin.setDecimals(2)
+        self.Vd_pulse_delay_spin.setRange(0.01, 10)
+        self.Vd_pulse_delay_spin.setSingleStep(0.01)
 
         self.Vd_start_label = QLabel("Start value (V)")
         self.Vd_start_spin = QDoubleSpinBox()
@@ -240,18 +230,15 @@ class MainWindow(QMainWindow):
         self.Vd_layout.addWidget(self.Vd_pulse_checkbox, 3, 0, 1, 2)
         self.Vd_layout.addWidget(self.Vd_pulse_delta_label, 4, 0)
         self.Vd_layout.addWidget(self.Vd_pulse_delta_spin, 4, 1)
-        self.Vd_layout.addWidget(self.Vd_pulse_period_label, 5, 0)
-        self.Vd_layout.addWidget(self.Vd_pulse_period_spin, 5, 1)
-        self.Vd_layout.addWidget(self.Vd_pulse_duty_label, 6, 0)
-        self.Vd_layout.addWidget(self.Vd_pulse_duty_spin, 6, 1)
-
-        self.Vd_layout.addWidget(self.Vd_start_label, 7, 0)
-        self.Vd_layout.addWidget(self.Vd_start_spin, 7, 1)
-        self.Vd_layout.addWidget(self.Vd_stop_label, 8, 0)
-        self.Vd_layout.addWidget(self.Vd_stop_spin, 8, 1)
-        self.Vd_layout.addWidget(self.Vd_step_label, 9, 0)
-        self.Vd_layout.addWidget(self.Vd_step_spin, 9, 1)
-        self.Vd_layout.addWidget(self.Vd_step_value, 10, 0, 1, 2)
+        self.Vd_layout.addWidget(self.Vd_pulse_delay_label, 5, 0)
+        self.Vd_layout.addWidget(self.Vd_pulse_delay_spin, 5, 1)
+        self.Vd_layout.addWidget(self.Vd_start_label, 6, 0)
+        self.Vd_layout.addWidget(self.Vd_start_spin, 6, 1)
+        self.Vd_layout.addWidget(self.Vd_stop_label, 7, 0)
+        self.Vd_layout.addWidget(self.Vd_stop_spin, 7, 1)
+        self.Vd_layout.addWidget(self.Vd_step_label, 8, 0)
+        self.Vd_layout.addWidget(self.Vd_step_spin, 8, 1)
+        self.Vd_layout.addWidget(self.Vd_step_value, 9, 0, 1, 2)
 
         self.voltage_layout.addWidget(self.Vg_group, 0, 1)
         self.voltage_layout.addWidget(self.Vd_group, 0, 0)
@@ -284,12 +271,18 @@ class MainWindow(QMainWindow):
         self.X_combo.addItem("Vg")
         self.X_combo.addItem("Time")
 
-        self.delay_label = QLabel("Delay (s)")
+        self.delay_label = QLabel("Sampling period (s)")
         self.delay_spin = QDoubleSpinBox()
         self.delay_spin.setDecimals(3)
         self.delay_spin.setRange(0, 1)
         self.delay_spin.setSingleStep(0.01)
         self.delay_spin.setValue(0.1)
+
+        self.n_points_label = QLabel("# of points")
+        self.n_points_spin = QSpinBox()
+        self.n_points_spin.setRange(1, 10)
+        self.n_points_spin.setValue(1)
+        self.n_points_spin.setSingleStep(1)
 
         self.measurement_layout.addWidget(self.Y1_axis_checkbox, 0, 0)
         self.measurement_layout.addWidget(self.Y1_combo, 1, 0)
@@ -299,6 +292,8 @@ class MainWindow(QMainWindow):
         self.measurement_layout.addWidget(self.X_combo, 1, 2)
         self.measurement_layout.addWidget(self.delay_label, 0, 3)
         self.measurement_layout.addWidget(self.delay_spin, 1, 3)
+        self.measurement_layout.addWidget(self.n_points_label, 0, 4)
+        self.measurement_layout.addWidget(self.n_points_spin, 1, 4)
 
         # Start/stop and save buttons group
         self.buttons_group = QGroupBox("Actions")
@@ -308,6 +303,7 @@ class MainWindow(QMainWindow):
         self.start_button = QPushButton("Start")
         self.stop_button = QPushButton("Stop")
         self.save_button = QPushButton("Save")
+        self.adjust_samp_button = QPushButton("Adjust sampling period")
 
         self.columns_group = QGroupBox("Saving")
         self.columns_layout = QGridLayout()
@@ -328,7 +324,8 @@ class MainWindow(QMainWindow):
         self.buttons_layout.addWidget(self.start_button, 0, 0)
         self.buttons_layout.addWidget(self.stop_button, 0, 1)
         self.buttons_layout.addWidget(self.save_button, 0, 2)
-        self.buttons_layout.addWidget(self.columns_group, 1, 0, 1, 3)
+        self.buttons_layout.addWidget(self.adjust_samp_button, 1, 0, 1, 3)
+        self.buttons_layout.addWidget(self.columns_group, 2, 0, 1, 3)
 
         # Info group
         self.info_group = QGroupBox("Info")
@@ -418,14 +415,9 @@ class MainWindow(QMainWindow):
                 "Vg.fixed.pulse.delta", self.Vg_pulse_delta_spin.value()
             )
         )
-        self.Vg_pulse_period_spin.valueChanged.connect(
+        self.Vg_pulse_delay_spin.valueChanged.connect(
             lambda: self.update_config(
-                "Vg.fixed.pulse.period", self.Vg_pulse_period_spin.value()
-            )
-        )
-        self.Vg_pulse_duty_spin.valueChanged.connect(
-            lambda: self.update_config(
-                "Vg.fixed.pulse.duty", self.Vg_pulse_duty_spin.value()
+                "Vg.fixed.pulse.delay", self.Vg_pulse_delay_spin.value()
             )
         )
 
@@ -463,14 +455,9 @@ class MainWindow(QMainWindow):
                 "Vd.fixed.pulse.delta", self.Vd_pulse_delta_spin.value()
             )
         )
-        self.Vd_pulse_period_spin.valueChanged.connect(
+        self.Vd_pulse_delay_spin.valueChanged.connect(
             lambda: self.update_config(
-                "Vd.fixed.pulse.period", self.Vd_pulse_period_spin.value()
-            )
-        )
-        self.Vd_pulse_duty_spin.valueChanged.connect(
-            lambda: self.update_config(
-                "Vd.fixed.pulse.duty", self.Vd_pulse_duty_spin.value()
+                "Vd.fixed.pulse.delay", self.Vd_pulse_delay_spin.value()
             )
         )
 
@@ -496,6 +483,12 @@ class MainWindow(QMainWindow):
         )
         self.X_combo.currentIndexChanged.connect(
             lambda: self.update_config("X.axis", self.X_combo.currentText())
+        )
+        self.delay_spin.valueChanged.connect(
+            lambda: self.update_config("period", self.delay_spin.value())
+        )
+        self.n_points_spin.valueChanged.connect(
+            lambda: self.update_config("n_points", self.n_points_spin.value())
         )
 
         self.start_button.clicked.connect(self.start)
@@ -526,6 +519,25 @@ class MainWindow(QMainWindow):
         self.Vg_start_spin.valueChanged.connect(self.update_Vg_step)
         self.Vg_stop_spin.valueChanged.connect(self.update_Vg_step)
         self.Vg_step_spin.valueChanged.connect(self.update_Vg_step)
+
+        self.Vd_pulse_delay_spin.valueChanged.connect(self.update_sampling_period)
+        self.Vg_pulse_delay_spin.valueChanged.connect(self.update_sampling_period)
+        self.Vd_pulse_delay_spin.valueChanged.connect(self.sync_pulse_delay)
+        self.Vg_pulse_delay_spin.valueChanged.connect(self.sync_pulse_delay)
+
+        self.delay_spin.valueChanged.connect(self.update_sampling_period)
+
+        self.adjust_samp_button.clicked.connect(self.adjust_sampling_delay)
+
+    def sync_pulse_delay(self):
+        """
+        Synchronize the pulse delay values between Vg and Vd
+        """
+        sender = self.sender()
+        if sender == self.Vd_pulse_delay_spin:
+            self.Vg_pulse_delay_spin.setValue(self.Vd_pulse_delay_spin.value())
+        elif sender == self.Vg_pulse_delay_spin:
+            self.Vd_pulse_delay_spin.setValue(self.Vg_pulse_delay_spin.value())
 
     def update_mode(self):
         """Update the mode and load its configuration"""
@@ -611,10 +623,8 @@ class MainWindow(QMainWindow):
                 "pulse": [
                     self.Vg_pulse_delta_label,
                     self.Vg_pulse_delta_spin,
-                    self.Vg_pulse_period_label,
-                    self.Vg_pulse_period_spin,
-                    self.Vg_pulse_duty_label,
-                    self.Vg_pulse_duty_spin,
+                    self.Vg_pulse_delay_label,
+                    self.Vg_pulse_delay_spin,
                 ],
             },
             "Vd": {
@@ -636,10 +646,8 @@ class MainWindow(QMainWindow):
                 "pulse": [
                     self.Vd_pulse_delta_label,
                     self.Vd_pulse_delta_spin,
-                    self.Vd_pulse_period_label,
-                    self.Vd_pulse_period_spin,
-                    self.Vd_pulse_duty_label,
-                    self.Vd_pulse_duty_spin,
+                    self.Vd_pulse_delay_label,
+                    self.Vd_pulse_delay_spin,
                 ],
             },
         }
@@ -680,6 +688,32 @@ class MainWindow(QMainWindow):
 
         self.Vg_step_value.setText(text)
 
+    def update_sampling_period(self):
+        """
+        Update the sampling period based on the pulse delay
+        """
+        if self.Vd_pulse_checkbox.isChecked() or self.Vg_pulse_checkbox.isChecked():
+            max_pulse_delay = max(
+                self.Vd_pulse_delay_spin.value(), self.Vg_pulse_delay_spin.value()
+            )
+            if self.delay_spin.value() < 2 * max_pulse_delay:
+                self.delay_spin.setValue(2 * max_pulse_delay)
+
+    def adjust_sampling_delay(self):
+        """
+        Calculate the response delay of the keithley and correct the sampling period
+        """
+        response_time = self.recorder.get_response_time(self.n_points_spin.value())
+        delay = self.delay_spin.value()
+
+        self.info_label.setText(
+            f"Response time for {self.n_points_spin.value()} points: "
+            f"{float_to_eng_string(response_time)}s"
+            f" (corrected delay: {float_to_eng_string(delay - response_time)}s)"
+        )
+
+        self.delay_spin.setValue(delay - response_time)
+
     def set_config(self, cfg):
         """
         Set the configuration
@@ -705,10 +739,8 @@ class MainWindow(QMainWindow):
         pulse_widgets_vd = [
             self.Vd_pulse_delta_label,
             self.Vd_pulse_delta_spin,
-            self.Vd_pulse_period_label,
-            self.Vd_pulse_period_spin,
-            self.Vd_pulse_duty_label,
-            self.Vd_pulse_duty_spin,
+            self.Vd_pulse_delay_label,
+            self.Vd_pulse_delay_spin,
         ]
 
         fixed_widgets_vg = [
@@ -731,10 +763,8 @@ class MainWindow(QMainWindow):
         pulse_widgets_vg = [
             self.Vg_pulse_delta_label,
             self.Vg_pulse_delta_spin,
-            self.Vg_pulse_period_label,
-            self.Vg_pulse_period_spin,
-            self.Vg_pulse_duty_label,
-            self.Vg_pulse_duty_spin,
+            self.Vg_pulse_delay_label,
+            self.Vg_pulse_delay_spin,
         ]
 
         self.Vg_mode_combo.setCurrentText(cfg["Vg"]["mode"])
@@ -747,8 +777,7 @@ class MainWindow(QMainWindow):
         # Set Vg pulse values
         self.Vg_pulse_checkbox.setChecked(cfg["Vg"]["fixed"]["pulse"]["enabled"])
         self.Vg_pulse_delta_spin.setValue(cfg["Vg"]["fixed"]["pulse"]["delta"])
-        self.Vg_pulse_period_spin.setValue(cfg["Vg"]["fixed"]["pulse"]["period"])
-        self.Vg_pulse_duty_spin.setValue(cfg["Vg"]["fixed"]["pulse"]["duty"])
+        self.Vg_pulse_delay_spin.setValue(cfg["Vg"]["fixed"]["pulse"]["delay"])
 
         self.Vd_mode_combo.setCurrentText(cfg["Vd"]["mode"])
         self.Vd_bidirectional_checkbox.setChecked(cfg["Vd"]["sweep"]["bidirectional"])
@@ -760,8 +789,7 @@ class MainWindow(QMainWindow):
         # Set Vd pulse values
         self.Vd_pulse_checkbox.setChecked(cfg["Vd"]["fixed"]["pulse"]["enabled"])
         self.Vd_pulse_delta_spin.setValue(cfg["Vd"]["fixed"]["pulse"]["delta"])
-        self.Vd_pulse_period_spin.setValue(cfg["Vd"]["fixed"]["pulse"]["period"])
-        self.Vd_pulse_duty_spin.setValue(cfg["Vd"]["fixed"]["pulse"]["duty"])
+        self.Vd_pulse_delay_spin.setValue(cfg["Vd"]["fixed"]["pulse"]["delay"])
 
         self.Y1_axis_checkbox.setChecked(cfg["Y1"]["enabled"])
         self.Y1_combo.setCurrentText(cfg["Y1"]["axis"])
@@ -769,6 +797,8 @@ class MainWindow(QMainWindow):
         self.Y2_combo.setCurrentText(cfg["Y2"]["axis"])
         self.Y2_combo.setEnabled(cfg["Y2"]["enabled"])
         self.X_combo.setCurrentText(cfg["X"]["axis"])
+        self.delay_spin.setValue(cfg["period"])
+        self.n_points_spin.setValue(cfg["n_points"])
 
         self.column_time_checkbox.setChecked(cfg["saving"]["Time"])
         self.column_Vg_checkbox.setChecked(cfg["saving"]["Vg"])
@@ -868,8 +898,7 @@ class MainWindow(QMainWindow):
                     {
                         "enabled": True,
                         "delta": pulse_cfg["delta"],
-                        "period": pulse_cfg["period"],
-                        "duty": pulse_cfg["duty"],
+                        "delay": pulse_cfg["delay"],
                     }
                 )
             else:
@@ -890,7 +919,12 @@ class MainWindow(QMainWindow):
                 self.points.append([vg, vd])
 
         # Pass pulse information to the recorder
-        self.recorder.start(self.points, self.delay_spin.value(), pulse_info)
+        self.recorder.start(
+            self.points,
+            delay=self.delay_spin.value(),
+            n_points=self.n_points_spin.value(),
+            pulse_info=pulse_info,
+        )
 
         self.info_label.setText("Measurement started")
 
