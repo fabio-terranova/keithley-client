@@ -78,7 +78,7 @@ class Recorder(QThread):
 
         start_time = time.time()
 
-        def measure(delay, n=1):
+        def measure(n=1):
             current_time = time.time() - start_time
             self.time.append(current_time)
 
@@ -99,7 +99,6 @@ class Recorder(QThread):
             self.vg.append(np.mean(Vg))
 
             self.data_ready.emit()
-            time.sleep(delay)
 
         if len(self.points) == 1:
             [vg_base, vd_base] = self.points[0]
@@ -133,9 +132,15 @@ class Recorder(QThread):
 
                     time.sleep(pulse_delay)
 
-                measure(
-                    self.delay - 2 * pulse_delay if vg_pulse_enabled else self.delay,
-                    n=self.n_points,
+                measure(n=self.n_points)
+                if vg_pulse_enabled or vd_pulse_enabled:
+                    if vg_pulse_enabled:
+                        self.keithley.set_voltage_source("b", vg_base)
+                    if vd_pulse_enabled:
+                        self.keithley.set_voltage_source("a", vd_base)
+
+                time.sleep(
+                    self.delay - 2 * pulse_delay if vg_pulse_enabled else self.delay
                 )
 
         else:
