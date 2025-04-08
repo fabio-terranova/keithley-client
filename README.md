@@ -26,6 +26,13 @@ A Python-based graphical interface for controlling Keithley SourceMeter 2612B.
 pip install git+https://www.github.com/fabio-terranova/keithley-client.git
 ```
 
+#### Specific version
+```bash
+pip install git+https://www.github.com/fabio-terranova/keithley-client.git@<version>
+```
+
+Replace `<version>` with the desired version tag (e.g., `v0.3.4` or `v0.4.1`)
+
 ### From source
 ```bash
 git clone https://github.com/fabio-terranova/keithley-client.git
