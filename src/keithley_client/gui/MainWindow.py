@@ -274,7 +274,7 @@ class MainWindow(QMainWindow):
         self.delay_label = QLabel("Sampling period (s)")
         self.delay_spin = QDoubleSpinBox()
         self.delay_spin.setDecimals(3)
-        self.delay_spin.setRange(0, 1)
+        self.delay_spin.setRange(0, 10)
         self.delay_spin.setSingleStep(0.01)
         self.delay_spin.setValue(0.1)
 
