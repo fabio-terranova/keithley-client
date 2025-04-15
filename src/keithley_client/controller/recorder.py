@@ -107,37 +107,37 @@ class Recorder(QThread):
             vg_pulse_enabled = self.pulse_info[0].get("enabled", False)
             vd_pulse_enabled = self.pulse_info[1].get("enabled", False)
 
-            # Extract pulse parameters for Vg
-            if vg_pulse_enabled:
-                vg_delta = self.pulse_info[0]["delta"]
-                vg_delay = self.pulse_info[0]["delay"]
-
+            # Extract pulse parameters for Vd and Vg
             if vd_pulse_enabled:
                 vd_delta = self.pulse_info[1]["delta"]
                 vd_delay = self.pulse_info[1]["delay"]
 
+            if vg_pulse_enabled:
+                vg_delta = self.pulse_info[0]["delta"]
+                vg_delay = self.pulse_info[0]["delay"]
+
             while self.recording:
-                self.keithley.set_voltage_source("b", vg_base)
                 self.keithley.set_voltage_source("a", vd_base)
+                self.keithley.set_voltage_source("b", vg_base)
 
                 if vg_pulse_enabled or vd_pulse_enabled:
                     pulse_delay = vg_delay if vg_pulse_enabled else vd_delay
 
                     time.sleep(pulse_delay)
 
-                    if vg_pulse_enabled:
-                        self.keithley.set_voltage_source("b", vg_base + vg_delta)
                     if vd_pulse_enabled:
                         self.keithley.set_voltage_source("a", vd_base + vd_delta)
+                    if vg_pulse_enabled:
+                        self.keithley.set_voltage_source("b", vg_base + vg_delta)
 
                     time.sleep(pulse_delay)
 
                 measure(n=self.n_points)
                 if vg_pulse_enabled or vd_pulse_enabled:
-                    if vg_pulse_enabled:
-                        self.keithley.set_voltage_source("b", vg_base)
                     if vd_pulse_enabled:
                         self.keithley.set_voltage_source("a", vd_base)
+                    if vg_pulse_enabled:
+                        self.keithley.set_voltage_source("b", vg_base)
 
                 time.sleep(
                     self.delay - 2 * pulse_delay if vg_pulse_enabled else self.delay
