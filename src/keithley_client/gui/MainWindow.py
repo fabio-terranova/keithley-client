@@ -303,7 +303,6 @@ class MainWindow(QMainWindow):
         self.start_button = QPushButton("Start")
         self.stop_button = QPushButton("Stop")
         self.save_button = QPushButton("Save")
-        self.adjust_samp_button = QPushButton("Adjust sampling period")
 
         self.columns_group = QGroupBox("Saving")
         self.columns_layout = QGridLayout()
@@ -324,8 +323,7 @@ class MainWindow(QMainWindow):
         self.buttons_layout.addWidget(self.start_button, 0, 0)
         self.buttons_layout.addWidget(self.stop_button, 0, 1)
         self.buttons_layout.addWidget(self.save_button, 0, 2)
-        self.buttons_layout.addWidget(self.adjust_samp_button, 1, 0, 1, 3)
-        self.buttons_layout.addWidget(self.columns_group, 2, 0, 1, 3)
+        self.buttons_layout.addWidget(self.columns_group, 1, 0, 1, 3)
 
         # Info group
         self.info_group = QGroupBox("Info")
@@ -527,8 +525,6 @@ class MainWindow(QMainWindow):
 
         self.delay_spin.valueChanged.connect(self.update_sampling_period)
 
-        self.adjust_samp_button.clicked.connect(self.adjust_sampling_delay)
-
     def sync_pulse_delay(self):
         """
         Synchronize the pulse delay values between Vg and Vd
@@ -698,21 +694,6 @@ class MainWindow(QMainWindow):
             )
             if self.delay_spin.value() < 2 * max_pulse_delay:
                 self.delay_spin.setValue(2 * max_pulse_delay)
-
-    def adjust_sampling_delay(self):
-        """
-        Calculate the response delay of the keithley and correct the sampling period
-        """
-        response_time = self.recorder.get_response_time(self.n_points_spin.value())
-        delay = self.delay_spin.value()
-
-        self.info_label.setText(
-            f"Response time for {self.n_points_spin.value()} points: "
-            f"{float_to_eng_string(response_time)}s"
-            f" (corrected delay: {float_to_eng_string(delay - response_time)}s)"
-        )
-
-        self.delay_spin.setValue(delay - response_time)
 
     def set_config(self, cfg):
         """
