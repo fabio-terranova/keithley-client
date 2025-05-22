@@ -19,6 +19,7 @@ class Keithley:
         self.instrument.write("smub.measure.rangei = 1e-6")
         self.instrument.write("smua.source.limiti = 10e-6")
         self.instrument.write("smub.source.limiti = 10e-6")
+        self.beep()
 
     def set_source_function(self, smu, function):
         self.instrument.write(f"smu{smu}.source.func = smu{smu}.{function}")
