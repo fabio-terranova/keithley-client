@@ -15,8 +15,8 @@ class Keithley:
 
     def reset(self):
         self.instrument.write("*RST")
-        self.instrument.write("smua.measure.rangei = 1e-6")
-        self.instrument.write("smub.measure.rangei = 1e-6")
+        self.instrument.write("smua.measure.rangei = 1e-5")
+        self.instrument.write("smub.measure.rangei = 1e-5")
         self.instrument.write("smua.source.limiti = 100e-6")
         self.instrument.write("smub.source.limiti = 100e-6")
 
