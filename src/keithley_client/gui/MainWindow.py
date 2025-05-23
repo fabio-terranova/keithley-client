@@ -101,8 +101,8 @@ class MainWindow(QMainWindow):
         self.config_combo.addItem("Time (pulse)")
         self.config_combo.setCurrentText(self.mode)
 
-        self.mode_layout.addWidget(self.config_combo)
-        self.mode_layout.addWidget(self.restore_config_button)
+        self.mode_layout.addWidget(self.config_combo, 0, 0)
+        self.mode_layout.addWidget(self.restore_config_button, 0, 1)
 
         # Voltage source configuration
         self.voltage_group = QGroupBox("Voltage configuration")
