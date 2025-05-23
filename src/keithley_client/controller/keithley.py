@@ -15,6 +15,10 @@ class Keithley:
 
     def reset(self):
         self.instrument.write("*RST")
+        self.instrument.write("smua.measure.autorangei = smua.AUTORANGE_ON")
+        self.instrument.write("smub.measure.autorangei = smua.AUTORANGE_ON")
+        self.instrument.write("smua.measure.lowrangei = 1e-6")
+        self.instrument.write("smub.measure.lowrangei = 1e-6")
 
     def set_source_function(self, smu, function):
         self.instrument.write(f"smu{smu}.source.func = smu{smu}.{function}")
