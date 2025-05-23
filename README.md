@@ -84,7 +84,7 @@ cd keithley-client
 Install the package:
 
 ```bash
-pip install --no-deps .
+pip install .
 ```
 
 ## Usage
