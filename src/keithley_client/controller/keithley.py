@@ -17,6 +17,8 @@ class Keithley:
         self.instrument.write("*RST")
         self.instrument.write("smua.measure.rangei = 1e-5")
         self.instrument.write("smub.measure.rangei = 1e-5")
+        self.instrument.write("smua.measure.lowrangei = lowrange")
+        self.instrument.write("smub.measure.lowrangei = lowrange")
         self.instrument.write("smua.source.limiti = 100e-6")
         self.instrument.write("smub.source.limiti = 100e-6")
 
