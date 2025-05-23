@@ -21,28 +21,76 @@ A Python-based graphical interface for controlling Keithley SourceMeter 2612B.
 
 ## Installation
 
+### SSH key setup
+
+To allow SSH access to the repository, follow these steps:
+
+1. Generate an SSH key pair (if you don't have one):
+
+    ```bash
+    ssh-keygen -t ed25519 -C "<email>"
+    ```
+
+    Replace `<email>` with your email address.
+
+2. Add the public key to deploy keys in the GitHub repository settings.
+
 ### Via pip (recommended)
+
+Generate an SSH key pair (if you don't have one):
+
 ```bash
-pip install git+https://www.github.com/fabio-terranova/keithley-client.git
+ssh-keygen -t ed25519 -C "<email>"
+```
+
+Replace `<email>` with your email address.
+
+Install the package using pip:
+
+```bash
+pip install git+ssh://git@github.com/fabio-terranova/keithley-client.git
+```
+
+#### Update
+
+To update the package via pip, use the following command:
+
+```bash
+pip install --upgrade --no-deps git+ssh://git@github.com/fabio-terranova/keithley-client.git
 ```
 
 #### Specific version
+
 ```bash
-pip install git+https://www.github.com/fabio-terranova/keithley-client.git@<version>
+pip install git+ssh://git@github.com/fabio-terranova/keithley-client.git@<version>
 ```
 
-Replace `<version>` with the desired version tag (e.g., `v0.3.4` or `v0.4.1`)
+Replace `<version>` with the desired version tag (e.g., `v0.3.4` or `v0.4.1`).
 
-### From source
+### Via source code
+
+Clone the repository:
+
 ```bash
-git clone https://github.com/fabio-terranova/keithley-client.git
+git clone ssh://fabio-terranova@github.com/fabio-terranova/keithley-client.git
+```
+
+Navigate to the cloned directory:
+
+```bash
 cd keithley-client
-pip install .
+```
+
+Install the package:
+
+```bash
+pip install --no-deps .
 ```
 
 ## Usage
 
 Launch the application using:
+
 ```bash
 keithley_client
 ```
