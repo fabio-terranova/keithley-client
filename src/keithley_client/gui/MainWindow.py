@@ -256,6 +256,7 @@ class MainWindow(QMainWindow):
         self.Y1_combo.addItem("Ig")
         self.Y1_combo.addItem("Vd")
         self.Y1_combo.addItem("Vg")
+        self.Y1_combo.addItem("sqrt(Id)")
 
         self.Y2_axis_checkbox = QCheckBox("Y2 axis")
         self.Y2_axis_checkbox.setChecked(True)
@@ -264,6 +265,7 @@ class MainWindow(QMainWindow):
         self.Y2_combo.addItem("Id")
         self.Y2_combo.addItem("Vd")
         self.Y2_combo.addItem("Vg")
+        self.Y2_combo.addItem("sqrt(Id)")
 
         self.X_label = QLabel("X axis")
         self.X_combo = QComboBox()
@@ -510,6 +512,10 @@ class MainWindow(QMainWindow):
         self.column_Ig_checkbox.stateChanged.connect(
             lambda: self.update_config("saving.Ig", self.column_Ig_checkbox.isChecked())
         )
+
+        self.Y1_combo.currentIndexChanged.connect(self.update_plots)
+        self.Y2_combo.currentIndexChanged.connect(self.update_plots)
+        self.X_combo.currentIndexChanged.connect(self.update_plots)
 
         self.Vd_start_spin.valueChanged.connect(self.update_Vd_step)
         self.Vd_stop_spin.valueChanged.connect(self.update_Vd_step)
@@ -925,11 +931,12 @@ class MainWindow(QMainWindow):
         """
         Update the plot
         """
-        self.id_label.setText(f"Id: {float_to_eng_string(self.recorder.id[-1])}A")
-        self.ig_label.setText(f"Ig: {float_to_eng_string(self.recorder.ig[-1])}A")
-        self.vd_label.setText(f"Vd: {self.recorder.vd[-1]:.2f} V")
-        self.vg_label.setText(f"Vg: {self.recorder.vg[-1]:.2f} V")
-        self.time_label.setText(f"Time: {self.recorder.time[-1]:.2f} s")
+        if len(self.recorder.id) != 0:
+            self.id_label.setText(f"Id: {float_to_eng_string(self.recorder.id[-1])}A")
+            self.ig_label.setText(f"Ig: {float_to_eng_string(self.recorder.ig[-1])}A")
+            self.vd_label.setText(f"Vd: {self.recorder.vd[-1]:.2f} V")
+            self.vg_label.setText(f"Vg: {self.recorder.vg[-1]:.2f} V")
+            self.time_label.setText(f"Time: {self.recorder.time[-1]:.2f} s")
 
         if self.configs[self.mode]["X"]["axis"] == "Time":
             x = self.recorder.time
@@ -944,8 +951,10 @@ class MainWindow(QMainWindow):
             y1 = self.recorder.ig
         elif self.configs[self.mode]["Y1"]["axis"] == "Vd":
             y1 = self.recorder.vd
-        else:
+        elif self.configs[self.mode]["Y1"]["axis"] == "Vg":
             y1 = self.recorder.vg
+        elif self.configs[self.mode]["Y1"]["axis"] == "sqrt(Id)":
+            y1 = np.sqrt(np.abs(self.recorder.id))
 
         if self.configs[self.mode]["Y2"]["axis"] == "Id":
             y2 = self.recorder.id
@@ -953,8 +962,10 @@ class MainWindow(QMainWindow):
             y2 = self.recorder.ig
         elif self.configs[self.mode]["Y2"]["axis"] == "Vd":
             y2 = self.recorder.vd
-        else:
+        elif self.configs[self.mode]["Y2"]["axis"] == "Vg":
             y2 = self.recorder.vg
+        elif self.configs[self.mode]["Y2"]["axis"] == "sqrt(Id)":
+            y2 = np.sqrt(np.abs(self.recorder.id))
 
         self.curves[0].setData(x, y1)
         self.curves[1].setData(x, y2)
