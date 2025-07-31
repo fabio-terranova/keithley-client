@@ -257,6 +257,8 @@ class MainWindow(QMainWindow):
         self.Y1_combo.addItem("Vd")
         self.Y1_combo.addItem("Vg")
         self.Y1_combo.addItem("sqrt(Id)")
+        self.Y1_combo.addItem("Id (ND)")
+        self.Y1_combo.addItem("Ig (ND)")
 
         self.Y2_axis_checkbox = QCheckBox("Y2 axis")
         self.Y2_axis_checkbox.setChecked(True)
@@ -266,6 +268,8 @@ class MainWindow(QMainWindow):
         self.Y2_combo.addItem("Vd")
         self.Y2_combo.addItem("Vg")
         self.Y2_combo.addItem("sqrt(Id)")
+        self.Y2_combo.addItem("Id (ND)")
+        self.Y2_combo.addItem("Ig (ND)")
 
         self.X_label = QLabel("X axis")
         self.X_combo = QComboBox()
@@ -363,7 +367,28 @@ class MainWindow(QMainWindow):
             for i in range(2)
         ]
 
-        self.plot_layout.addWidget(self.plot_widget)
+        # Add two spin boxes for first time point and second time point to calculate the slope to
+        # subtract from the current Id and Ig values
+        self.drift_correction_group = QGroupBox("Drift correction")
+        self.drift_correction_layout = QGridLayout()
+        self.first_time_point_spin = QSpinBox()
+        self.first_time_point_spin.setRange(0, 10000)
+        self.first_time_point_spin.setValue(30)
+        self.second_time_point_spin = QSpinBox()
+        self.second_time_point_spin.setRange(0, 10000)
+        self.second_time_point_spin.setValue(60)
+        self.drift_info1_label = QLabel("Id drift")
+        self.drift_info2_label = QLabel("Ig drift")
+        self.drift_correction_layout.addWidget(QLabel("First time point (s)"), 0, 0)
+        self.drift_correction_layout.addWidget(self.first_time_point_spin, 0, 1)
+        self.drift_correction_layout.addWidget(QLabel("Second time point (s)"), 1, 0)
+        self.drift_correction_layout.addWidget(self.second_time_point_spin, 1, 1)
+        self.drift_correction_layout.addWidget(self.drift_info1_label, 2, 0)
+        self.drift_correction_layout.addWidget(self.drift_info2_label, 2, 1)
+
+        self.plot_layout.addWidget(self.plot_widget, 0, 0, 1, 2)
+        self.plot_layout.addWidget(self.drift_correction_group, 1, 0, 1, 2)
+        self.drift_correction_group.setLayout(self.drift_correction_layout)
 
         # Main layout
         self.layout = QGridLayout()
@@ -570,9 +595,13 @@ class MainWindow(QMainWindow):
             cfg["X"]["unit"] = "V" if value != "Time" else "s"
 
         if path == "Y1.axis":
-            cfg["Y1"]["unit"] = "A" if value in ["Id", "Ig"] else "V"
+            cfg["Y1"]["unit"] = (
+                "A" if value in ["Id", "Ig", "Id (ND)", "Ig (ND)"] else "V"
+            )
         if path == "Y2.axis":
-            cfg["Y2"]["unit"] = "A" if value in ["Id", "Ig"] else "V"
+            cfg["Y2"]["unit"] = (
+                "A" if value in ["Id", "Ig", "Id (ND)", "Ig (ND)"] else "V"
+            )
 
         # # Automatically update Y2 axis based on Y1
         # if path == "Y1.axis":
@@ -953,6 +982,10 @@ class MainWindow(QMainWindow):
             y1 = self.recorder.vd
         elif self.configs[self.mode]["Y1"]["axis"] == "Vg":
             y1 = self.recorder.vg
+        elif self.configs[self.mode]["Y1"]["axis"] == "Id (ND)":
+            y1 = self.get_drift_corrected_id()
+        elif self.configs[self.mode]["Y1"]["axis"] == "Ig (ND)":
+            y1 = self.get_drift_corrected_ig()
         elif self.configs[self.mode]["Y1"]["axis"] == "sqrt(Id)":
             y1 = np.sqrt(np.abs(self.recorder.id))
 
@@ -964,11 +997,83 @@ class MainWindow(QMainWindow):
             y2 = self.recorder.vd
         elif self.configs[self.mode]["Y2"]["axis"] == "Vg":
             y2 = self.recorder.vg
+        elif self.configs[self.mode]["Y2"]["axis"] == "Id (ND)":
+            y2 = self.get_drift_corrected_id()
+        elif self.configs[self.mode]["Y2"]["axis"] == "Ig (ND)":
+            y2 = self.get_drift_corrected_ig()
         elif self.configs[self.mode]["Y2"]["axis"] == "sqrt(Id)":
             y2 = np.sqrt(np.abs(self.recorder.id))
 
         self.curves[0].setData(x, y1)
         self.curves[1].setData(x, y2)
+
+    def get_drift_corrected_id(self):
+        first_time_point = self.first_time_point_spin.value()
+        second_time_point = self.second_time_point_spin.value()
+        # Ensure the time points are within bounds
+        if self.recorder.time is None or len(self.recorder.time) == 0:
+            return self.recorder.id
+        if (
+            first_time_point >= self.recorder.time[-1]
+            or second_time_point >= self.recorder.time[-1]
+        ):
+            return self.recorder.id
+
+        first_idx = first_time_point / self.delay_spin.value()
+        second_idx = second_time_point / self.delay_spin.value()
+
+        if first_idx < 0 or second_idx < 0:
+            return self.recorder.id
+        if first_idx >= len(self.recorder.time) or second_idx >= len(
+            self.recorder.time
+        ):
+            return self.recorder.id
+
+        # linear fit of the Id values between the two time points
+        x = list(self.recorder.time)[int(first_idx) : int(second_idx) + 1]
+        y = list(self.recorder.id)[int(first_idx) : int(second_idx) + 1]
+
+        if len(x) < 2 or len(y) < 2:
+            return self.recorder.id
+
+        # linear fit
+        coeffs = np.polyfit(x, y, 1)
+        self.drift_info1_label.setText(f"Id drift: {float_to_eng_string(coeffs[0])}A/s")
+        return self.recorder.id - np.polyval(coeffs, self.recorder.time)
+
+    def get_drift_corrected_ig(self):
+        first_time_point = self.first_time_point_spin.value()
+        second_time_point = self.second_time_point_spin.value()
+        # Ensure the time points are within bounds
+        if self.recorder.time is None or len(self.recorder.time) == 0:
+            return self.recorder.ig
+        if (
+            first_time_point >= self.recorder.time[-1]
+            or second_time_point >= self.recorder.time[-1]
+        ):
+            return self.recorder.ig
+
+        first_idx = first_time_point / self.delay_spin.value()
+        second_idx = second_time_point / self.delay_spin.value()
+
+        if first_idx < 0 or second_idx < 0:
+            return self.recorder.ig
+        if first_idx >= len(self.recorder.time) or second_idx >= len(
+            self.recorder.time
+        ):
+            return self.recorder.ig
+
+        # linear fit of the Ig values between the two time points
+        x = list(self.recorder.time)[int(first_idx) : int(second_idx) + 1]
+        y = list(self.recorder.ig)[int(first_idx) : int(second_idx) + 1]
+
+        if len(x) < 2 or len(y) < 2:
+            return self.recorder.ig
+
+        # linear fit
+        coeffs = np.polyfit(x, y, 1)
+        self.drift_info2_label.setText(f"Ig drift: {float_to_eng_string(coeffs[0])}A/s")
+        return self.recorder.ig - np.polyval(coeffs, self.recorder.time)
 
     def save(self):
         """
