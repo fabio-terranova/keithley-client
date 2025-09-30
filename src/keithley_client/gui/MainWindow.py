@@ -365,7 +365,16 @@ class MainWindow(QMainWindow):
             for i in range(2)
         ]
 
-        self.plot_layout.addWidget(self.plot_widget)
+        self.show_last_seconds_checkbox = QCheckBox("Show last (s)")
+        self.show_last_seconds_checkbox.setChecked(False)
+        self.show_last_seconds_spin = QSpinBox()
+        self.show_last_seconds_spin.setRange(10, 3600)
+        self.show_last_seconds_spin.setValue(120)
+        self.show_last_seconds_spin.setEnabled(False)
+
+        self.plot_layout.addWidget(self.plot_widget, 0, 0, 1, 2)
+        self.plot_layout.addWidget(self.show_last_seconds_checkbox, 1, 0)
+        self.plot_layout.addWidget(self.show_last_seconds_spin, 1, 1)
 
         # Main layout
         self.layout = QGridLayout()
@@ -532,6 +541,12 @@ class MainWindow(QMainWindow):
         self.Vg_pulse_delay_spin.valueChanged.connect(self.sync_pulse_delay)
 
         self.delay_spin.valueChanged.connect(self.update_sampling_period)
+
+        self.show_last_seconds_checkbox.stateChanged.connect(
+            lambda: self.show_last_seconds_spin.setEnabled(
+                self.show_last_seconds_checkbox.isChecked()
+            )
+        )
 
     def sync_pulse_delay(self):
         """
@@ -978,6 +993,12 @@ class MainWindow(QMainWindow):
             y2 = self.recorder.vg
         elif self.configs[self.mode]["Y2"]["axis"] == "sqrt(Id)":
             y2 = np.sqrt(np.abs(self.recorder.id))
+
+        if self.show_last_seconds_checkbox.isChecked():
+            mask = np.array(x) >= x[-1] - self.show_last_seconds_spin.value()
+            x = np.array(x)[mask]
+            y1 = np.array(y1)[mask]
+            y2 = np.array(y2)[mask]
 
         self.curves[0].setData(x, y1)
         self.curves[1].setData(x, y2)
