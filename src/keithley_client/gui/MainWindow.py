@@ -356,8 +356,10 @@ class MainWindow(QMainWindow):
             self.plot_widget.addPlot(row=0, col=0),
             self.plot_widget.addPlot(row=1, col=0),
         ]
-        for plot in self.plot_items:
+        for i, plot in enumerate(self.plot_items):
             plot.showGrid(x=True, y=True)
+            if i == 1:
+                plot.setXLink(self.plot_items[0])
         self.curves = [
             self.plot_items[i].plot(pen=None, symbol="o", symbolSize=10)
             for i in range(2)
@@ -570,9 +572,19 @@ class MainWindow(QMainWindow):
             cfg["X"]["unit"] = "V" if value != "Time" else "s"
 
         if path == "Y1.axis":
-            cfg["Y1"]["unit"] = "A" if value in ["Id", "Ig"] else "V"
+            if value == "sqrt(Id)":
+                cfg["Y1"]["unit"] = "A^0.5"
+            elif cfg["Y1"]["unit"] == "A":
+                cfg["Y1"]["unit"] = "A"
+            else:
+                cfg["Y1"]["unit"] = "V"
         if path == "Y2.axis":
-            cfg["Y2"]["unit"] = "A" if value in ["Id", "Ig"] else "V"
+            if value == "sqrt(Id)":
+                cfg["Y2"]["unit"] = "A^0.5"
+            elif cfg["Y2"]["unit"] == "A":
+                cfg["Y2"]["unit"] = "A"
+            else:
+                cfg["Y2"]["unit"] = "V"
 
         # # Automatically update Y2 axis based on Y1
         # if path == "Y1.axis":
