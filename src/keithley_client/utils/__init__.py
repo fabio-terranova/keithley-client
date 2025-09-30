@@ -19,4 +19,4 @@ def float_to_eng_string(f):
         value = f * 10 ** (-3 * degree)
         unit = down[-degree - 1]
 
-    return f"{value:.2f} {unit}"
+    return f"{value:.3f} {unit}"
