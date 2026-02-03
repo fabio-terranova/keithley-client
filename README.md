@@ -2,6 +2,8 @@
 
 A Python-based graphical interface for controlling Keithley SourceMeter 2612B.
 
+<img width="1419" height="1247" alt="image" src="https://github.com/user-attachments/assets/abb5b70f-3ac1-47c9-9cd1-9cd04844807c" />
+
 ## Features
 
 - Three measurement modes:
