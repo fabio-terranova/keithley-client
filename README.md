@@ -21,20 +21,6 @@ A Python-based graphical interface for controlling Keithley SourceMeter 2612B.
 
 ## Installation
 
-### SSH key setup
-
-To allow SSH access to the repository, follow these steps:
-
-1. Generate an SSH key pair (if you don't have one):
-
-    ```bash
-    ssh-keygen -t ed25519 -C "<email>"
-    ```
-
-    Replace `<email>` with your email address.
-
-2. Add the public key to deploy keys in the GitHub repository settings.
-
 ### Via pip (recommended)
 
 Generate an SSH key pair (if you don't have one):
